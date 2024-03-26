@@ -1,0 +1,20 @@
+# Simple work flow that prints the current java version
+name: Java Version Check
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: 21
+
+    - name: Print the current date time
+      run: echo "The current date time is $(date)"
+
+    - name: Display Java version
+      run: java -version

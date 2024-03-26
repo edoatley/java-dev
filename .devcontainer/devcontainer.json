@@ -1,0 +1,54 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/java-postgres
+{
+	"name": "Java & PostgreSQL",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "app",
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+	// Features to add to the dev container. More info: https://containers.dev/features.
+	"features": {
+		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+		"ghcr.io/devcontainers/features/azure-cli:1": {},
+		"ghcr.io/devcontainers/features/terraform:1": {},
+		"ghcr.io/devcontainers/features/git:1": {},
+		"ghcr.io/devcontainers-contrib/features/act-asdf:2.0.13": {},
+		"ghcr.io/devcontainers-contrib/features/actionlint:1": {}
+	},
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// Here we have the API web port and Postgres port.
+	"forwardPorts": [
+		5432,
+		8080
+	],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// Here we add an alias for the ACT CLI such that it uses the correct container architecture - this is necessary on apple silicon
+	"postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+	// Configure tool-specific properties.
+	"customizations": {
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": {
+				"java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
+				"java.compile.nullAnalysis.mode": "automatic",
+				"editor.formatOnPaste": false, // required
+				"editor.formatOnType": false, // required
+				"editor.formatOnSave": true, // optional
+				"editor.formatOnSaveMode": "file", // required to format on save
+				"files.autoSave": "off" // optional but recommended
+			},
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-azuretools.vscode-docker",
+				"github.vscode-github-actions",
+				"4ops.terraform",
+				"hashicorp.terraform",
+				"vscjava.vscode-java-pack",
+				"oracle.oracledevtools",
+				"vscjava.vscode-gradle",
+				"yzhang.markdown-all-in-one"
+			]
+		}
+	}
+	// root or vscode
+	//"remoteUser": "root"
+}
