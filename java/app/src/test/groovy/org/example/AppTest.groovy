@@ -6,7 +6,8 @@ package org.example
 import spock.lang.Specification
 
 class AppTest extends Specification {
-    def "application has a greeting"() {
+
+    def "Application responds to a health check"() {
         setup:
         def app = new App()
 

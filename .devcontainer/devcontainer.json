@@ -29,6 +29,7 @@
 			// Set *default* container specific settings.json values on container create.
 			"settings": {
 				"java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
+				"java.configuration.updateBuildConfiguration": "interactive",
 				"java.compile.nullAnalysis.mode": "automatic",
 				"editor.formatOnPaste": false, // required
 				"editor.formatOnType": false, // required
