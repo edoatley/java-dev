@@ -1,11 +1,16 @@
 package uk.org.edoatley;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
-    public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+import java.io.IOException;
+
+@WebServlet(name = "HelloServlet", urlPatterns = { "hello" }, loadOnStartup = 1)
+public class App extends HttpServlet {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws IOException {
+        response.getWriter().print("Howdy");
     }
 }

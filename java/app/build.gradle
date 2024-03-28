@@ -1,13 +1,12 @@
 // Following https://dzone.com/articles/develop-a-rest-api-using-java-and-jetty
-
+// and https://github.com/oktadev/okta-spring-boot-jetty-example/blob/main/gradle-jetty/src/main/java/com/demo/AhoyServlet.java
 plugins {
     // Apply the groovy plugin to also add support for Groovy (needed for Spock)
     id 'groovy'
 
     id 'java'
     id 'war'
-    id 'org.gretty' version '2.3.1'  
-
+    id 'org.gretty' version '4.0.3'
 }
 
 repositories {
@@ -16,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    providedCompile 'javax.servlet:javax.servlet-api:3.1.0'  
+    providedCompile 'jakarta.servlet:jakarta.servlet-api:6.0.0'
 
     // Use the latest Groovy version for Spock testing
     testImplementation libs.groovy
