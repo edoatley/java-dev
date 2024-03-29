@@ -44,9 +44,9 @@
 				"4ops.terraform",
 				"hashicorp.terraform",
 				"vscjava.vscode-java-pack",
-				"oracle.oracledevtools",
 				"vscjava.vscode-gradle",
-				"yzhang.markdown-all-in-one"
+				"yzhang.markdown-all-in-one",
+				"techer.open-in-browser"
 			]
 		}
 	}

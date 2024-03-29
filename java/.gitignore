@@ -4,4 +4,8 @@
 # Ignore Gradle build output directory
 build
 
-app/bin
+# Ignore VS Code output directory
+bin
+
+# Do not ignore the wrapper
+!gradle/wrapper/*
