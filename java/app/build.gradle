@@ -3,10 +3,12 @@
 plugins {
     // Apply the groovy plugin to also add support for Groovy (needed for Spock)
     id 'groovy'
-
     id 'java'
     id 'war'
-    id 'org.gretty' version '4.0.3'
+}
+
+ext {
+    jettyServerVersion = '12.0.7'
 }
 
 repositories {
@@ -15,7 +17,9 @@ repositories {
 }
 
 dependencies {
-    providedCompile 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+    implementation "org.eclipse.jetty.http2:jetty-http2-server:${jettyServerVersion}"
+    implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet:${jettyServerVersion}"
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
 
     // Use the latest Groovy version for Spock testing
     testImplementation libs.groovy
@@ -37,12 +41,7 @@ java {
     }
 }
 
-
 tasks.named('test') {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
-}
-
-gretty {  
-    contextPath = '/'  
 }
