@@ -28,12 +28,17 @@ public class Jetty {
         log.debug("Starting server...");
 
         server = new Server(configuredPort);
+        log.debug("Server instantiated...");
         server.setHandler(buildContextHandler());
+        log.debug("Server context added...");
 
         try {
             log.debug("Attempting to start server");
             server.start();
             log.debug("Attempting to join server");
+
+            // TODO: this call is blocking... make it so that it can run in the background
+            // if desired
             server.join();
             log.info("Server started at {0}", serviceUrl());
         } finally {
