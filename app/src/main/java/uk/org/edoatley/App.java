@@ -14,15 +14,12 @@ public class App {
     public static void main(String[] args) throws Exception {
 
         ConfigurationManagement config = new ConfigurationManagement(CONFIG_PROPERTIES_FILE);
+        log.info("Configuration loaded");
 
-        try (Jetty webapp = new Jetty(config.getAsInt(ConfigurationManagement.SERVER_PORT),
-                config.get(ConfigurationManagement.SERVER_CONTEXT_PATH))) {
-            webapp.startServer();
-
-        } catch (Exception e) {
-            log.error("Failed running web server", e);
-        }
-
+        Jetty webapp = new Jetty(config.getAsInt(ConfigurationManagement.SERVER_PORT));
+        log.info("Server starting");
+        webapp.startServer();
+        log.info("Server started");
     }
 
 }

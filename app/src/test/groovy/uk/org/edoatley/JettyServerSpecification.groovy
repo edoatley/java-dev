@@ -11,7 +11,7 @@ class JettyServerSpecification extends Specification {
 
     def setupSpec() {
         println 'Setup spec'
-        webapp = new Jetty(0, '/')
+        webapp = new Jetty(0)
         webapp.startServer()
         serviceUrl = webapp.serviceUrl()
     }
