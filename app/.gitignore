@@ -9,3 +9,6 @@ bin
 
 # Do not ignore the wrapper
 !gradle/wrapper/*
+
+# Ignore local logs
+logs

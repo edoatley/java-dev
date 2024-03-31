@@ -46,7 +46,8 @@
 				"vscjava.vscode-java-pack",
 				"vscjava.vscode-gradle",
 				"yzhang.markdown-all-in-one",
-				"techer.open-in-browser"
+				"techer.open-in-browser",
+				"nicolasvuillamy.vscode-groovy-lint"
 			]
 		}
 	}
