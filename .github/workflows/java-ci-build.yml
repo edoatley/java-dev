@@ -7,7 +7,7 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: Set up JDK 21
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4
       with:
         distribution: 'adopt'
         java-version: 21
@@ -20,11 +20,11 @@ jobs:
     
     - name: Gradle clean and build
       working-directory: app
-      run: gradlew clean build -x test
+      run: gradle clean build -x test
     
     - name: Gradle Unit Test
       working-directory: app
-      run: gradlew test
+      run: gradle test
 
     - name: Publish Test Report
       uses: mikepenz/action-junit-report@v4
