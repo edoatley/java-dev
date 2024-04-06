@@ -16,10 +16,11 @@ public class App {
         ConfigurationManagement config = new ConfigurationManagement(CONFIG_PROPERTIES_FILE);
         log.info("Configuration loaded");
 
-        Jetty webapp = new Jetty(config.getAsInt(ConfigurationManagement.SERVER_PORT));
-        log.info("Server starting");
-        webapp.startServer();
-        log.info("Server started");
+        try (Jetty webapp = new Jetty(config.getAsInt(ConfigurationManagement.SERVER_PORT))) {
+            log.info("Server starting");
+            webapp.startServer(true);
+            log.info("Server started");
+        }
     }
 
 }

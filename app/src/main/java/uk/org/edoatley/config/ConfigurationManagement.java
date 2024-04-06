@@ -23,6 +23,7 @@ public class ConfigurationManagement {
     }
 
     private void importConfig() {
+        System.err.println("configPath is " + configPath);
         try {
             properties.load(ConfigurationManagement.class.getResourceAsStream(configPath));
         } catch (IOException e) {

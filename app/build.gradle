@@ -1,6 +1,8 @@
 plugins {
     id 'groovy'
-    id 'war'
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 project.ext {
@@ -10,6 +12,9 @@ project.ext {
     slf4j : '2.0.12'
   ]
 }
+
+mainClassName = 'uk.org.edoatley.App'
+
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
@@ -41,10 +46,13 @@ dependencies {
     // Groovy / Spock / JUnit for testing
     testImplementation libs.groovy
     testImplementation libs.spock.core
-    testImplementation libs.junit
+    testImplementation libs.guava
     testImplementation 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
+    
+    
+    testImplementation libs.junit
+    testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    implementation libs.guava
     
 }
 
@@ -64,12 +72,3 @@ tasks.named('test') {
         minGranularity = 3
     }
 }
-
-// war {
-//   manifest {
-//     attributes(
-//       'Class-Path': configurations.runtimeClasspath.collect { it.getName() }.join(' '),
-//       'Main-Class': 'uk.org.edoatley.App'
-//     )
-//   }
-// }
