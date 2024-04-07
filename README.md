@@ -11,15 +11,21 @@ Investigating neat ways to do java cloud native dev
       - [Deeper validation: gradle](#deeper-validation-gradle)
       - [Deeper validation: act (github actions local development)](#deeper-validation-act-github-actions-local-development)
       - [Deeper validation: git](#deeper-validation-git)
-  - [Build an API (Jetty)](#build-an-api-jetty)
+  - [Build a basic API (Jetty/Jersey) and basic tests](#build-a-basic-api-jettyjersey-and-basic-tests)
 
 ## Plan
 
 - Set up dev container supporting docker, java 21/22, postgresql. See [this article](https://medium.com/@alcbotta/from-an-empty-folder-to-a-complete-application-a-walk-through-using-vscode-remote-container-java-39a6fa6e10e2)
-- Build an API (Jetty) that calls multiple backends to get a result and saves it to a database - consider [Structured Concurrency](https://docs.oracle.com/en/java/javase/21/core/structured-concurrency.html#GUID-AA992944-AABA-4CBC-8039-DE5E17DE86DB
-- Add basic tests
-- Add integration test
+- Build a basic API (Jetty/Jersey) and basic tests
+- Migrate all tests to JUnit 5 
+- Add TLS
+- Add AuthN
+- Add integration tests
+- Update API so that it writes to DB
+- Add database as code / liquibase
 - Add CI
+- update API so that it calls multiple backends to get a result and saves it to a database 
+- Consider [Structured Concurrency](https://docs.oracle.com/en/java/javase/21/core/structured-concurrency.html#GUID-AA992944-AABA-4CBC-8039-DE5E17DE86DB
 - Add basic IaC build (registry)
 - Add repository push
 - Add proper pipeline for `feature` branches 
@@ -49,8 +55,6 @@ following the [official guide](https://code.visualstudio.com/docs/devcontainers/
 - devcontainer.json
 - docker-compose.yml
 - Dockerfile
-
-
 
 ### Validation
 
@@ -353,5 +357,129 @@ To github.com:edoatley/java-dev.git
 branch 'setup-devcontainers' set up to track 'origin/setup-devcontainers'.
 ```
 
-## Build an API (Jetty) 
+## Build a basic API (Jetty/Jersey) and basic tests
+
+In this stage we first need to define our build.gradle file to pull in the dependencies for:
+
+- Jetty - servlet container
+- Jersey - API container
+- Slf4j - logging
+- Junit/Spock/Groovy - testing
+
+The full file can be found here:
+
+<details> 
+<summary>build.gradle contents</summary>
+```gradle
+plugins {
+    id 'groovy'
+    id 'java'
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+project.ext {
+  versions = [
+    jetty : '12.0.7',
+    jersey : '3.1.5',
+    slf4j : '2.0.12'
+  ]
+}
+
+mainClassName = 'uk.org.edoatley.App'
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+dependencies {
+
+    // Eclipse Jetty - provides a web server and servlet container. 
+    // Note that since v12 artifacts that are EE specific are now isolated in their own EE specific layer.
+    // This is why we have the ee10 servlet BoM and the jetty cory BoM
+    implementation platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
+    implementation 'org.eclipse.jetty:jetty-server'
+    implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
+    implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
+
+    // Eclipse Jersey - a REST framework that provides a JAX-RS (JSR-370) implementation
+    implementation platform("org.glassfish.jersey:jersey-bom:$versions.jersey")
+    implementation "org.glassfish.jersey.core:jersey-server"
+    implementation "org.glassfish.jersey.containers:jersey-container-servlet-core"
+    implementation "org.glassfish.jersey.containers:jersey-container-jetty-http"
+    implementation "org.glassfish.jersey.media:jersey-media-json-jackson"
+    implementation "org.glassfish.jersey.inject:jersey-hk2"
+
+    // slf4j
+    implementation platform("org.slf4j:slf4j-bom:$versions.slf4j")
+    implementation "org.slf4j:slf4j-api"
+    implementation "org.slf4j:slf4j-simple"
+
+    // Groovy / Spock / JUnit for testing
+    testImplementation libs.groovy
+    testImplementation libs.spock.core
+    testImplementation libs.guava
+    testImplementation libs.junit
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    
+    // JsonSlurper
+    testImplementation("org.codehaus.groovy:groovy-json:3.0.21") 
+    // OkHttp3
+    testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+}
+
+// Apply a specific Java toolchain to ease working on different environments.
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.named('test') {
+    // Use JUnit Platform for unit tests.
+    useJUnitPlatform()
+    testLogging { 
+        showStandardStreams = true
+        exceptionFormat "full"
+        minGranularity = 3
+    }
+}
+```
+
+</details> 
+
+With this in place we then need to start the server (from [Jetty.java](./app/src/main/java/uk/org/edoatley/server/ Jetty.java)) by performing the following:
+
+```java
+server = new Server(configuredPort);
+ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+contextHandler.setContextPath("/");
+server.setHandler(contextHandler);
+
+ServletHolder jerseyServlet = contextHandler.addServlet(ServletContainer.class, "/api/*");
+jerseyServlet.setInitOrder(0);
+jerseyServlet.setInitParameter("jersey.config.server.provider.packages",
+        "uk.org.edoatley.servlet.resources");
+server.start()
+```
+
+We can then define API resources such as [HelloResource.java](./app/src/main/java/uk/org/edoatley/servlet/resources/HelloResource.java):
+
+```java
+@Path("/hello")
+public class HelloResource {
+    @GET
+    @Path("/{param}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Greeting hello(@PathParam("param") String name) {
+        log.info("Request to /hello/{param}, param={}", name);
+        return new Greeting("Hello " + name);
+    }
+}
+```
+
+We can then define and run our tests in spock
 

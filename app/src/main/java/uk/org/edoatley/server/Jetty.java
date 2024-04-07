@@ -49,11 +49,6 @@ public class Jetty implements AutoCloseable {
         jerseyServlet.setInitOrder(0);
         jerseyServlet.setInitParameter("jersey.config.server.provider.packages",
                 "uk.org.edoatley.servlet.resources");
-        // ResourceConfig resourceConfig = new ResourceConfig();
-        // resourceConfig.register(HelloResource.class);
-        // resourceConfig.register(GreetingMessageBodyWriter.class);
-        // handler.addServlet(new ServletHolder(new ServletContainer(resourceConfig)),
-        // "/api/*");
         log.debug("Handler created");
     }
 
