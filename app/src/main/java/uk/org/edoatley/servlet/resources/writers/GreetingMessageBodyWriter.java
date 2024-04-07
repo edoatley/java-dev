@@ -1,4 +1,4 @@
-package uk.org.edoatley.resource.writer;
+package uk.org.edoatley.servlet.resources.writers;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.ext.Provider;
-import uk.org.edoatley.model.Greeting;
+import uk.org.edoatley.servlet.model.Greeting;
 import jakarta.ws.rs.ext.MessageBodyWriter;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.MultivaluedMap;

@@ -1,28 +1,33 @@
-/* groovylint-disable ClassJavadoc */
 package uk.org.edoatley
 
 import uk.org.edoatley.server.Jetty
 
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+
 import spock.lang.Specification
 import spock.lang.Shared
-import groovy.transform.CompileStatic
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import groovy.json.JsonSlurper
 
 /**
   Base spec class to control the Jetty server we are starting for our tests
 **/
-@CompileStatic
 class JettyServerSpecification extends Specification {
 
   @Shared String serviceUrl
   @Shared Jetty webapp
   @Shared Logger log
+  @Shared OkHttpClient client
 
-  /* groovylint-disable-next-line MethodReturnTypeRequired, NoDef */
   def setupSpec() {
     log = LoggerFactory.getLogger(JettyServerSpecification)
 
+    log.info('setupSpec() - Groovy Version: {}', GroovySystem.version)
     webapp = new Jetty(0)
     log.info('setupSpec() - Jetty instantiated')
 
@@ -31,6 +36,24 @@ class JettyServerSpecification extends Specification {
 
     serviceUrl = webapp.serviceUrl()
     log.info('setupSpec() - serviceUrl={}', serviceUrl)
+
+    client = new OkHttpClient()
+  }
+
+  def cleanupSpec() {
+    webapp.close()
+  }
+
+  def Response doGet(String path) {
+    Request getRequest = new Request.Builder()
+      .url(serviceUrl + path)
+      .addHeader('Content-Type', 'application/json').build()
+    Response getResponse = client.newCall(getRequest).execute()
+    return getResponse
+  }
+
+  def jsonSlurp(String jsonContent) {
+    return new JsonSlurper().parseText(jsonContent)
   }
 
 }

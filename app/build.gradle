@@ -47,13 +47,15 @@ dependencies {
     testImplementation libs.groovy
     testImplementation libs.spock.core
     testImplementation libs.guava
-    testImplementation 'org.codehaus.groovy.modules.http-builder:http-builder:0.7.1'
-    
-    
     testImplementation libs.junit
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     
+    // JsonSlurper
+    testImplementation("org.codehaus.groovy:groovy-json:3.0.21") 
+    // OkHttp3
+    testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

@@ -1,5 +1,6 @@
 package uk.org.edoatley.config;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -10,11 +11,16 @@ public class ConfigurationManagement {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationManagement.class);
 
     // server
+    public static final String DEFAULT_CONFIG_PATH = "src/main/resources/config.properties";
     public static final String SERVER_PORT = "server.port";
     public static final String SERVER_CONTEXT_PATH = "server.context.path";
 
     private String configPath;
     private Properties properties;
+
+    public ConfigurationManagement() {
+        this(DEFAULT_CONFIG_PATH);
+    }
 
     public ConfigurationManagement(String configPropertiesFile) {
         this.configPath = configPropertiesFile;
@@ -24,8 +30,9 @@ public class ConfigurationManagement {
 
     private void importConfig() {
         System.err.println("configPath is " + configPath);
-        try {
-            properties.load(ConfigurationManagement.class.getResourceAsStream(configPath));
+
+        try (FileInputStream fis = new FileInputStream(configPath)) {
+            properties.load(fis);
         } catch (IOException e) {
             log.error("Failed to read in configuration from " + configPath, e);
             throw new RuntimeException(e);

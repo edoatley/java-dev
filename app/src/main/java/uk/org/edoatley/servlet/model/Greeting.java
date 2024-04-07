@@ -1,4 +1,4 @@
-package uk.org.edoatley.model;
+package uk.org.edoatley.servlet.model;
 
 public class Greeting {
     private String message;
