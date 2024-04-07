@@ -1,0 +1,23 @@
+{
+    "extends": "recommended",
+    "rules": {
+        "ClassJavadoc": {
+            "enabled": false
+        },
+        "CompileStatic": {
+            "enabled": false
+        },
+        "JUnitPublicNonTestMethod": {
+            "enabled": false
+        },
+        "MethodName": {
+            "enabled": false
+        },
+        "MethodReturnTypeRequired": {
+            "enabled": false
+        },
+        "NoDef": {
+            "enabled": false
+        }
+    }
+}
