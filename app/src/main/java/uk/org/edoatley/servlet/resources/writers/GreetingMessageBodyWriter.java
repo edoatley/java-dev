@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.MultivaluedMap;
 import java.nio.charset.StandardCharsets;
 
 @Provider
-@Produces(MediaType.TEXT_PLAIN)
+@Produces(MediaType.APPLICATION_JSON)
 public class GreetingMessageBodyWriter implements MessageBodyWriter<Greeting> {
     @Override
     public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {

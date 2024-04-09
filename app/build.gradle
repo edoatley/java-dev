@@ -1,24 +1,26 @@
 plugins {
-    id 'groovy'
-    id 'java'
-    id 'application'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
-    id 'com.softeq.gradle.itest' version '1.0.4'
+        id 'groovy'
+        id 'java'
+        id 'application'
+        id 'com.github.johnrengelman.shadow' version '8.1.1'
+        id 'com.softeq.gradle.itest' version '1.0.4'
 }
 
 project.ext {
-  versions = [
-    jetty : '12.0.7',
-    jersey : '3.1.5',
-    slf4j : '2.0.12'
-  ]
+    versions = [
+        jetty : '12.0.7',
+        jersey : '3.1.5',
+        jackson : '2.12.3',
+        slf4j : '2.0.1',
+        log4j : '2.23.1'
+    ]
 }
 
 mainClassName = 'uk.org.edoatley.App'
 
 repositories {
-    // Use Maven Central for resolving dependencies.
-    mavenCentral()
+        // Use Maven Central for resolving dependencies.
+        mavenCentral()
 }
 
 dependencies {
@@ -26,37 +28,53 @@ dependencies {
 // Eclipse Jetty - provides a web server and servlet container. 
 // Note that since v12 artifacts that are EE specific are now isolated in their own EE specific layer.
 // This is why we have the ee10 servlet BoM and the jetty cory BoM
-    implementation platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
-    implementation 'org.eclipse.jetty:jetty-server'
-    implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
-    implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
+        implementation platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
+        implementation 'org.eclipse.jetty:jetty-server'
+        implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
+        implementation "org.eclipse.jetty.ee10:jetty-ee10-servlet"
 
-    // Eclipse Jersey - a REST framework that provides a JAX-RS (JSR-370) implementation
-    implementation platform("org.glassfish.jersey:jersey-bom:$versions.jersey")
-    implementation "org.glassfish.jersey.core:jersey-server"
-    implementation "org.glassfish.jersey.containers:jersey-container-servlet-core"
-    implementation "org.glassfish.jersey.containers:jersey-container-jetty-http"
-    implementation "org.glassfish.jersey.media:jersey-media-json-jackson"
-    implementation "org.glassfish.jersey.inject:jersey-hk2"
+        // Eclipse Jersey - a REST framework that provides a JAX-RS (JSR-370) implementation
+        implementation platform("org.glassfish.jersey:jersey-bom:$versions.jersey")
+        implementation "org.glassfish.jersey.core:jersey-server"
+        implementation "org.glassfish.jersey.containers:jersey-container-servlet-core"
+        implementation "org.glassfish.jersey.containers:jersey-container-jetty-http"
+        implementation "org.glassfish.jersey.media:jersey-media-json-jackson"
+        implementation "org.glassfish.jersey.inject:jersey-hk2"
 
-    // slf4j
-    implementation platform("org.slf4j:slf4j-bom:$versions.slf4j")
-    implementation "org.slf4j:slf4j-api"
-    implementation "org.slf4j:slf4j-simple"
 
-    // Groovy / Spock / JUnit for testing
-    testImplementation libs.groovy
-    testImplementation libs.spock.core
-    testImplementation libs.guava
-    testImplementation libs.junit
-    testImplementation("org.junit.jupiter:junit-jupiter")
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    
-    // JsonSlurper
-    testImplementation("org.codehaus.groovy:groovy-json:3.0.21") 
-    // OkHttp3
-    testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
+        implementation "org.slf4j:slf4j-api:$versions.slf4j"
+        implementation "org.slf4j:slf4j-log4j12:$versions.slf4j"
+        implementation "org.apache.logging.log4j:log4j-api:$versions.log4j"
+        implementation "org.apache.logging.log4j:log4j-core:$versions.log4j"
+        implementation "org.apache.logging.log4j:log4j-slf4j-impl:$versions.log4j"
 
+        // Uses Version catalog - see gradle/libs.versions.toml 
+        // and https://docs.gradle.org/current/userguide/part3_gradle_dep_man.html
+        testImplementation libs.groovy
+        testImplementation libs.spock.core
+        testImplementation libs.guava
+        testImplementation libs.junit
+        testImplementation libs.junit.jupiter
+        // JsonSlurper
+        testImplementation("org.codehaus.groovy:groovy-json:3.0.21") 
+        // OkHttp3
+        testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
+
+        // Integration testing  dependencies
+        itestImplementation libs.junit.jupiter
+        itestImplementation platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
+        itestImplementation "com.fasterxml.jackson.core:jackson-core"
+        itestImplementation "com.fasterxml.jackson.core:jackson-databind"
+        itestImplementation "com.fasterxml.jackson.core:jackson-annotations"
+        itestImplementation 'org.hamcrest:hamcrest:2.2'
+        itestImplementation 'org.apache.commons:commons-lang3:3.14.0'
+        itestImplementation 'org.apache.httpcomponents:httpclient:4.5.14'   
+
+        itestImplementation "org.slf4j:slf4j-api:$versions.slf4j"
+        itestImplementation "org.slf4j:slf4j-log4j12:$versions.slf4j"
+        itestImplementation "org.apache.logging.log4j:log4j-api:$versions.log4j"
+        itestImplementation "org.apache.logging.log4j:log4j-core:$versions.log4j"
+        itestImplementation "org.apache.logging.log4j:log4j-slf4j-impl:$versions.log4j"
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -66,7 +84,7 @@ java {
     }
 }
 
-tasks.named('test') {
+tasks.withType(Test) {
     // Use JUnit Platform for unit tests.
     useJUnitPlatform()
     testLogging { 
