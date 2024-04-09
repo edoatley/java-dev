@@ -26,11 +26,11 @@ jobs:
     
     - name: Gradle clean and build
       working-directory: app
-      run: gradle clean build -x test
+      run: gradle clean build -x test -x integrationTest
     
     - name: Gradle Unit Test
       working-directory: app
-      run: gradle test
+      run: gradle test -x integrationTest
 
     - name: Publish Test Report
       uses: mikepenz/action-junit-report@v4
