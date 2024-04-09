@@ -35,7 +35,6 @@ dependencies {
 
         // Eclipse Jersey - a REST framework that provides a JAX-RS (JSR-370) implementation
         implementation platform("org.glassfish.jersey:jersey-bom:$versions.jersey")
-        implementation "org.glassfish.jersey.core:jersey-server"
         implementation "org.glassfish.jersey.containers:jersey-container-servlet-core"
         implementation "org.glassfish.jersey.containers:jersey-container-jetty-http"
         implementation "org.glassfish.jersey.media:jersey-media-json-jackson"

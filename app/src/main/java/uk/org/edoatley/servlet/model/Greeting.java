@@ -1,5 +1,8 @@
 package uk.org.edoatley.servlet.model;
 
+import jakarta.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement
 public class Greeting {
     private String message;
 
