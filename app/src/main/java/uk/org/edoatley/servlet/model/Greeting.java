@@ -4,6 +4,7 @@ public class Greeting {
     private String message;
 
     public Greeting() {
+        super();
     }
 
     public Greeting(String message) {
