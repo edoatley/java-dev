@@ -9,10 +9,7 @@ plugins {
 project.ext {
     versions = [
         jetty : '12.0.7',
-        jersey : '3.1.5',
-        jackson : '2.12.3',
-        slf4j : '2.0.1',
-        log4j : '2.23.1'
+        jersey : '3.1.5'
     ]
 }
 
@@ -25,9 +22,9 @@ repositories {
 
 dependencies {
 
-// Eclipse Jetty - provides a web server and servlet container. 
-// Note that since v12 artifacts that are EE specific are now isolated in their own EE specific layer.
-// This is why we have the ee10 servlet BoM and the jetty cory BoM
+        // Eclipse Jetty - provides a web server and servlet container. 
+        // Note that since v12 artifacts that are EE specific are now isolated in their own EE specific layer.
+        // This is why we have the ee10 servlet BoM and the jetty cory BoM
         implementation platform("org.eclipse.jetty:jetty-bom:$versions.jetty")
         implementation 'org.eclipse.jetty:jetty-server'
         implementation platform("org.eclipse.jetty.ee10:jetty-ee10-bom:$versions.jetty")
@@ -40,39 +37,24 @@ dependencies {
         implementation "org.glassfish.jersey.media:jersey-media-json-jackson"
         implementation "org.glassfish.jersey.inject:jersey-hk2"
 
-        implementation "org.slf4j:slf4j-api:$versions.slf4j"
-        implementation "org.slf4j:slf4j-log4j12:$versions.slf4j"
-        implementation "org.apache.logging.log4j:log4j-api:$versions.log4j"
-        implementation "org.apache.logging.log4j:log4j-core:$versions.log4j"
-        implementation "org.apache.logging.log4j:log4j-slf4j-impl:$versions.log4j"
+        // Note below we use the libs. Gradle Version Catalog syntax - see gradle/libs.versions.toml for the details
+        
+        // add slf4j and log4j
+        implementation libs.bundles.logging 
 
-        // Uses Version catalog - see gradle/libs.versions.toml 
-        // and https://docs.gradle.org/current/userguide/part3_gradle_dep_man.html
-        testImplementation libs.groovy
-        testImplementation libs.spock.core
-        testImplementation libs.guava
-        testImplementation libs.junit
+        // add test dependencies
         testImplementation libs.junit.jupiter
-        // JsonSlurper
-        testImplementation("org.codehaus.groovy:groovy-json:3.0.21") 
-        // OkHttp3
-        testImplementation 'com.squareup.okhttp3:okhttp:4.12.0'
+        testImplementation libs.bundles.logging 
+        testImplementation libs.bundles.testLibs
 
-        // Integration testing  dependencies
-        itestImplementation libs.junit.jupiter
-        itestImplementation platform("com.fasterxml.jackson:jackson-bom:$versions.jackson")
-        itestImplementation "com.fasterxml.jackson.core:jackson-core"
-        itestImplementation "com.fasterxml.jackson.core:jackson-databind"
-        itestImplementation "com.fasterxml.jackson.core:jackson-annotations"
-        itestImplementation 'org.hamcrest:hamcrest:2.2'
-        itestImplementation 'org.apache.commons:commons-lang3:3.14.0'
-        itestImplementation 'org.apache.httpcomponents:httpclient:4.5.14'   
+}
 
-        itestImplementation "org.slf4j:slf4j-api:$versions.slf4j"
-        itestImplementation "org.slf4j:slf4j-log4j12:$versions.slf4j"
-        itestImplementation "org.apache.logging.log4j:log4j-api:$versions.log4j"
-        itestImplementation "org.apache.logging.log4j:log4j-core:$versions.log4j"
-        itestImplementation "org.apache.logging.log4j:log4j-slf4j-impl:$versions.log4j"
+// have the itest dependencies match the test source set
+sourceSets {
+    itest {
+        compileClasspath += sourceSets.test.output
+        runtimeClasspath += sourceSets.test.output
+    }
 }
 
 // Apply a specific Java toolchain to ease working on different environments.

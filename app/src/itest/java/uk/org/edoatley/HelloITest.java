@@ -34,13 +34,6 @@ public class HelloITest {
         }
     }
 
-    // TODO:
-    // 1. complete this https://github.com/Softeq/itest-gradle-plugin and get the
-    // dependencies working o this test runs (and fails initially)
-    // 2. fix the test so it passes
-    // 3. Migrate the other tests to JUnit5
-    // 4. Use the PropertiesReader class to read the configuration from the file in
-    // the other places and remove ConfigurationManagement
     @Test
     void testHello() throws ClientProtocolException, IOException {
         // Given
