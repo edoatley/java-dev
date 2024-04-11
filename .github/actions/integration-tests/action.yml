@@ -53,7 +53,7 @@ runs:
       - 
         name: Run Docker Image
         run: |
-          docker run -d -p ${{ step.port.outputs.free_port }}:8080 --name restapi ${{ inputs.image }}
+          docker run -d -p ${{ steps.port.outputs.free_port }}:8080 --name restapi ${{ inputs.image }}
         shell: bash
 
     #   - name: Run integration test  
