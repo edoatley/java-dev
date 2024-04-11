@@ -1,4 +1,4 @@
-name: Build Java Application
+name: 'Build Java Application'
 on: 
   push:
 
@@ -11,11 +11,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Build and Test
-      uses: ./.github/actions/java-ci-build
-      with:
-        java-version: "21"
-        cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
+      - uses: actions/checkout@v4
+      
+      - name: Build and Test
+        uses: ./.github/actions/java-ci-build
+        with:
+          java-version: "21"
+          cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
         

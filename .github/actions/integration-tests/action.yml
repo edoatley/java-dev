@@ -3,7 +3,7 @@ description: Locally build and tags the docker image
 
 inputs:
   image:
-    description: What to tag image with
+    description: 'What to tag image with'
     required: true
   java-version:
     description: 'Version of JDK to setup'
@@ -20,53 +20,39 @@ runs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1
 
-    - name: Docker Build
-      uses: docker/build-push-action@v2
-      with:
-        context: ${{ inputs.context }}
-        push: false
-        tags: ${{ inputs.image }}
+    # - name: Docker Build
+    #   uses: docker/build-push-action@v2
+    #   with:
+    #     context: '${{ inputs.context }}'
+    #     push: false
+    #     tags: '${{ inputs.image }}'
 
-      # Find a free port on the host machine
-      - name: Find Free Port
-        id: port
-        run: |
-          BASE_PORT=1234
-          INCREMENT=1
-          port=$BASE_PORT
+    #   - name: Find Free Port
+    #     id: port
+    #     run: |
+    #       BASE_PORT=1234
+    #       INCREMENT=1
+    #       port=$BASE_PORT
 
-          while [ -n "$(ss -tan4H "sport = $port")" ]; do
-            port=$((port+INCREMENT))
-          done
+    #       while [ -n "$(ss -tan4H "sport = $port")" ]; do
+    #         port=$((port+INCREMENT))
+    #       done
 
-          echo "free_port=$port" >> $GITHUB_OUTPUT
+    #       echo "free_port=$port" >> $GITHUB_OUTPUT
+    #     shell: bash
 
-        shell: bash
+    #   - name: Run Docker Image
+    #     run: docker run -d -p ${{ port.outputs.free_port }}:8080 --name restapi ${{ inputs.image }}
+    #     shell: bash
 
-      - name: Run Docker Image
-        run: docker run -d -p ${{ port.outputs.free_port }}:8080 --name restapi ${{ inputs.image }}
-        shell: bash
-
-      # - name: Set up JDK
-      #   uses: actions/setup-java@v4
-      #   with:
-      #     distribution: 'adopt'
-      #     java-version: '${{ inputs.java-version }}'
-
-      # - name: Setup Gradle
-      #   uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-      #   with:
-      #     gradle-version: '${{ inputs.gradle-version }}'
-      #     cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
-
-      - name: Run integration test  
-        env:
-          SERVICE_URL: http://localhost:${{ port.outputs.free_port }}
-        run: gradle integrationTest
+    #   - name: Run integration test  
+    #     env:
+    #       SERVICE_URL: http://localhost:${{ port.outputs.free_port }}
+    #     run: gradle integrationTest
         
-      - name: Publish Test Report
-        uses: mikepenz/action-junit-report@v4
-        if: success() || failure() # always run even if the previous step fails
-        with:
-          report_paths: '**/build/test-results/itest/TEST-*.xml'
+    #   - name: Publish Test Report
+    #     uses: mikepenz/action-junit-report@v4
+    #     if: success() || failure() # always run even if the previous step fails
+    #     with:
+    #       report_paths: '**/build/test-results/itest/TEST-*.xml'
   

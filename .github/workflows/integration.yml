@@ -1,9 +1,9 @@
-name: Build Docker App, run and run integration tests
+name: 'Build Docker App, run and run integration tests'
 on:
   push:
     branches:
       - main
-      - junit5 # just for testing
+      - junit5
   
 permissions:
   contents: read
@@ -14,15 +14,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - name: Build and Test
-      uses: ./.github/actions/java-ci-build
-      with:
-        java-version: "21"
-        cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
-    
-    - name: Run Integration Tests
-      uses: ./.github/actions/integration-tests
-      with:
-        image: java-dev/restapi:${{ github.sha }}
+      - name: Build and Test
+        uses: ./.github/actions/java-ci-build
+        with:
+          java-version: "21"
+          cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
+      
+      - name: Run Integration Tests
+        uses: ./.github/actions/integration-tests
+        with:
+          image: java-dev/restapi:${{ github.sha }}
