@@ -44,7 +44,7 @@ runs:
           while [ -n "$(ss -tan4H "sport = $port")" ]; do
             port=$((port+INCREMENT))
           done
-
+          echo "free_port=$port"
           echo "free_port=$port" >> $GITHUB_OUTPUT
         shell: bash
       - 
@@ -56,8 +56,10 @@ runs:
       - 
         name: Run integration test  
         env:
-          SERVICE_URL: http://localhost:${{ port.outputs.free_port }}
-        run: gradle integrationTest
+          SERVICE_URL: http://localhost:${{ steps.port.outputs.free_port }}
+        run: |
+          gradle integrationTest
+        shell: bash
         
       - 
         name: Publish Test Report
