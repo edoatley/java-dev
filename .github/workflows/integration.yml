@@ -1,0 +1,34 @@
+name: Build Docker App, run and run integration tests
+on:
+  push:
+    branches:
+      - main
+      - junit5 # just for testing
+  
+permissions:
+  contents: read
+  checks: write
+  id-token: write
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build and Test
+      uses: ./.github/actions/java-ci-build.yml
+      with:
+        java-version: "21"
+        
+    - name: Build Docker App
+      uses: ./.github/actions/docker-build.yml
+      with:
+        context: app
+        tags: java-dev/restapi:${{ github.sha }}
+    
+    - name: Run Integration Tests
+      uses: ./.github/actions/integration-tests.yml
+      with:
+        image: java-dev/restapi:${{ github.sha }}
+        

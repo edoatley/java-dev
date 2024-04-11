@@ -1,0 +1,25 @@
+name: Local Docker Build
+description: Locally build and tags the docker image
+
+inputs:
+  tags:
+    description: What to tag image with
+    required: true
+  context:
+    description: Where is dockerfile located
+    required: true
+
+
+runs:
+  using: 'composite'
+  steps:
+
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v1
+
+  - name: Build and push
+    uses: docker/build-push-action@v2
+    with:
+      context: ${{ inputs.context }}
+      push: false
+      tags: ${{ inputs.tags }}
