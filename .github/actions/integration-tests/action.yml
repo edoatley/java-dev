@@ -32,6 +32,7 @@ runs:
         with:
           context: '${{ inputs.context }}'
           push: false
+          load: true
           tags: '${{ inputs.image }}'
       - 
         name: Find Free Port
