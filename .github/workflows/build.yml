@@ -11,31 +11,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
-    - name: Set up JDK 21
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'adopt'
-        java-version: 21
-
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-      with:
-        gradle-version: current
-        cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
     
-    - name: Gradle clean and build
-      working-directory: app
-      run: gradle clean build -x test -x integrationTest
-    
-    - name: Gradle Unit Test
-      working-directory: app
-      run: gradle test -x integrationTest
-
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@v4
-      if: success() || failure() # always run even if the previous step fails
+    - name: Build and Test
+      uses: ./.github/actions/java-ci-build
       with:
-        report_paths: '**/build/test-results/test/TEST-*.xml'
+        java-version: "21"
         
         
