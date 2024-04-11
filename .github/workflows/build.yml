@@ -13,8 +13,8 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Build and Test
-      uses: ./.github/actions/java-ci-build
+      uses: .github/actions/java-ci-build
       with:
         java-version: "21"
-        
+        cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
         

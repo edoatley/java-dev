@@ -22,6 +22,9 @@ inputs:
     description: 'Arguments to pass to the gradle test command'
     required: false
     default: 'test -x integrationTest'    
+  cache-encryption-key:
+    description: 'The encryption key to use for caching'
+    required: false
 
 runs:
   using: 'composite'
@@ -36,7 +39,7 @@ runs:
       uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
       with:
         gradle-version: '${{ inputs.gradle-version }}'
-        cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
+        cache-encryption-key: ${{ inputs.cache-encryption-key }} 
 
     - name: Gradle clean and build
       run: gradle ${{ inputs.gradle-build-args }}
