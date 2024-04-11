@@ -26,3 +26,4 @@ jobs:
         uses: ./.github/actions/integration-tests
         with:
           image: java-dev/restapi:${{ github.sha }}
+          context: app
