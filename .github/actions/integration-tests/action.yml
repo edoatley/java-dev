@@ -6,7 +6,7 @@ inputs:
     description: 'What to tag image with'
     required: true
   context:
-    description: 'What to tag image with'
+    description: 'Docker file / app location'
     required: true
   java-version:
     description: 'Version of JDK to setup'
@@ -53,15 +53,19 @@ runs:
         run: |
           docker run -d -p ${{ steps.port.outputs.free_port }}:8080 --name restapi ${{ inputs.image }}
         shell: bash
-
       - 
         name: Run integration test  
         env:
           SERVICE_URL: http://localhost:${{ steps.port.outputs.free_port }}
+        working-directory: ${{ inputs.context }}  
         run: |
           gradle integrationTest
         shell: bash
-        
+       - 
+        name: Stop Running Docker Image
+        run: |
+          docker stop restapi
+        shell: bash
       - 
         name: Publish Test Report
         uses: mikepenz/action-junit-report@v4
