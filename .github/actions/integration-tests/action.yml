@@ -61,7 +61,7 @@ runs:
         run: |
           gradle integrationTest
         shell: bash
-       - 
+      - 
         name: Stop Running Docker Image
         run: |
           docker stop restapi
