@@ -13,7 +13,7 @@ import uk.org.edoatley.utils.PropertiesReader;
 
 public class ITestConfiguration {
     private static final Logger log = LoggerFactory.getLogger(ITestConfiguration.class);
-    private static final String CONFIG_FILE_LOCATION = "src/itest/resources/itest-config.properties";
+    private static final String CONFIG_FILE_LOCATION = "itest-config.properties";
 
     private Set<String> keys;
 

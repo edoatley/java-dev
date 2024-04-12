@@ -11,7 +11,7 @@ import uk.org.edoatley.utils.PropertiesReader;
 public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
-    public static final String DEFAULT_CONFIG_PATH = "src/main/resources/config.properties";
+    public static final String DEFAULT_CONFIG_PATH = "config.properties";
     public static final String SERVER_PORT = "server.port";
 
     public static void main(String[] args) throws Exception {
