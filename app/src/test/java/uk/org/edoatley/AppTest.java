@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -38,7 +39,9 @@ public class AppTest {
     @Test
     @DisplayName("Call the /hello endpoint")
     public void testSimpleHello() {
-        when()
+        given()
+                .relaxedHTTPSValidation()
+                .when()
                 .get(serviceUrl + "/api/hello")
                 .then()
                 .statusCode(200)
@@ -50,7 +53,9 @@ public class AppTest {
     @Test
     @DisplayName("Call the /hello endpoint with a name parameter")
     public void testNamedHello() {
-        when()
+        given()
+                .relaxedHTTPSValidation()
+                .when()
                 .get(serviceUrl + "/api/hello/Bob")
                 .then()
                 .statusCode(200)
