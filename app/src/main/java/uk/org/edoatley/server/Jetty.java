@@ -18,15 +18,18 @@ import org.slf4j.LoggerFactory;
 
 public class Jetty implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(Jetty.class);
-
     private int configuredPort;
 
     private Server server;
 
     public Jetty(int configuredPort) {
-        this.configuredPort = 8443;
-        // this.configuredPort = configuredPort;
-        this.server = newSecureServer(this.configuredPort);
+        this.configuredPort = configuredPort;
+        this.server = newServer(this.configuredPort);
+    }
+
+    public Jetty(int configuredPort, String keystore, String keystorePassword) {
+        this.configuredPort = configuredPort;
+        this.server = newSecureServer(this.configuredPort, keystore, keystorePassword);
     }
 
     public void startServer(boolean blocking) throws Exception {
@@ -40,7 +43,7 @@ public class Jetty implements AutoCloseable {
         }
     }
 
-    protected static Server newServerNoConnector() {
+    private static Server newServerNoConnector() {
         Server server = new Server();
 
         // Add root servlet
@@ -59,6 +62,14 @@ public class Jetty implements AutoCloseable {
         return server;
     }
 
+    private Server newServer(int httpPort) {
+        Server server = newServerNoConnector();
+        ServerConnector connector = new ServerConnector(server);
+        connector.setPort(httpPort);
+        server.addConnector(connector);
+        return server;
+    }
+
     /**
      * Make the server provided secure
      * 
@@ -68,7 +79,7 @@ public class Jetty implements AutoCloseable {
      * @param unsecuredServer a jetty server without TLS configuration
      * @return a jetty server with TLS configuration
      */
-    private Server newSecureServer(int httpsPort) {
+    private Server newSecureServer(int httpsPort, String keystore, String keystorePassword) {
 
         Server server = newServerNoConnector();
 
@@ -76,9 +87,9 @@ public class Jetty implements AutoCloseable {
 
         // Setup SSL
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStoreResource(findKeyStore(resourceFactory));
-        sslContextFactory.setKeyStorePassword("OBF:1vny1zlo1x8e1vnw1vn61x8g1zlu1vn4");
-        sslContextFactory.setKeyManagerPassword("OBF:1u2u1wml1z7s1z7a1wnl1u2g");
+        sslContextFactory.setKeyStoreResource(findKeyStore(resourceFactory, keystore));
+        sslContextFactory.setKeyStorePassword(keystorePassword);
+        sslContextFactory.setKeyManagerPassword(keystorePassword);
 
         // Setup HTTPS Configuration
         HttpConfiguration httpsConf = new HttpConfiguration();
@@ -91,16 +102,17 @@ public class Jetty implements AutoCloseable {
                 new SslConnectionFactory(sslContextFactory, "http/1.1"),
                 new HttpConnectionFactory(httpsConf));
         httpsConnector.setPort(httpsPort);
+        // httpsConnector.setHost("restapi.edoatley.com");
 
         server.addConnector(httpsConnector);
         return server;
     }
 
-    private static Resource findKeyStore(ResourceFactory resourceFactory) {
-        String resourceName = "tls/keystore";
-        Resource resource = resourceFactory.newClassLoaderResource(resourceName);
+    private static Resource findKeyStore(ResourceFactory resourceFactory, String keystore) {
+
+        Resource resource = resourceFactory.newClassLoaderResource(keystore);
         if (!Resources.isReadableFile(resource)) {
-            throw new RuntimeException("Unable to read " + resourceName);
+            throw new RuntimeException("Unable to read " + keystore);
         }
         return resource;
     }

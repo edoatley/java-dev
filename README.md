@@ -484,3 +484,44 @@ public class HelloResource {
 
 We can then define and run our tests in spock
 
+
+## Consolidate on JUnit5
+
+Rather than have some tests in groovy/spock and some written using JUnit I decided to migrate all the tests to use JUnit5, remove groovy so everything is java
+and add an integration test that can point at a configured endpoint.
+
+I decided to use RestAssured for the API testing and defined a docker build and run action which runs the integration test as part of it.
+
+I used gradle version catalog to define all the test dependencies once
+
+## Enable TLS
+
+The next task was to enable TLS connections on the Jetty server so that connections are secure.
+
+Firstly we can generate a keystore with
+
+```bash
+keytool -genkey -alias restapi -keyalg RSA -keystore test-keystore.jks -keysize 2048 -validity 3650
+Enter keystore password:
+Re-enter new password:
+What is your first and last name?
+  [Unknown]:  restapi.edoatley.com
+What is the name of your organizational unit?
+  [Unknown]:  devops
+What is the name of your organization?
+  [Unknown]:  edo
+What is the name of your City or Locality?
+  [Unknown]:  Reading
+What is the name of your State or Province?
+  [Unknown]:  Berkshire
+What is the two-letter country code for this unit?
+  [Unknown]:  GB
+Is CN=restapi.edoatley.com, OU=devops, O=edo, L=Reading, ST=Berkshire, C=GB correct?
+  [no]:  yes
+
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
+	for: CN=restapi.edoatley.com, OU=devops, O=edo, L=Reading, ST=Berkshire, C=GB
+```
+
+We then need to amend our Jetty class so it configures the secure connectivity and update the unit tests so they are
+testing the secure endpoint and accept the TLS certificate presented.
