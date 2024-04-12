@@ -11,7 +11,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - IMAGE_TAG=${IMAGE_TAG:?1-21-bullseye}
+        - IMAGE_TAG=${IMAGE_TAG}
     environment:
       # NOTE: POSTGRES_DB/USER/PASSWORD should match values in db container
       POSTGRES_PASSWORD: postgres

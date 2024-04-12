@@ -46,7 +46,8 @@
 				"hashicorp.terraform",
 				"vscjava.vscode-java-pack",
 				"vscjava.vscode-gradle",
-				"nicolasvuillamy.vscode-groovy-lint"
+				"nicolasvuillamy.vscode-groovy-lint",
+				"kennylong.kubernetes-yaml-formatter"
 			]
 		}
 	}

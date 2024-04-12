@@ -370,6 +370,7 @@ The full file can be found here:
 
 <details> 
 <summary>build.gradle contents</summary>
+
 ```gradle
 plugins {
     id 'groovy'

@@ -11,11 +11,11 @@ import jakarta.ws.rs.core.MediaType;
 import uk.org.edoatley.servlet.model.Greeting;
 
 @Path("/hello")
+@Produces(MediaType.APPLICATION_JSON)
 public class HelloResource {
     private static final Logger log = LoggerFactory.getLogger(HelloResource.class);
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
     public Greeting hello() {
         log.info("Request to /hello");
         return new Greeting("Howdy!");
@@ -23,7 +23,6 @@ public class HelloResource {
 
     @GET
     @Path("/{param}")
-    @Produces(MediaType.APPLICATION_JSON)
     public Greeting hello(@PathParam("param") String name) {
         log.info("Request to /hello/{param}, param={}", name);
         return new Greeting("Hello " + name);
