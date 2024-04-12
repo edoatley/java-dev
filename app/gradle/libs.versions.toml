@@ -10,6 +10,7 @@ jaxbApi = "2.3.1"
 jaxbCore = "4.0.5"
 jaxbImpl = "4.0.5"
 activation = "1.1.1"
+apacheCommons = "3.12.0"
 
 [libraries]
 # Logging libraries
@@ -29,8 +30,9 @@ jaxbApi = { group = "javax.xml.bind", name = "jaxb-api", version.ref = "jaxbApi"
 jaxbCore = { group = "com.sun.xml.bind", name = "jaxb-core", version.ref = "jaxbCore" }
 jaxbImpl = { group = "com.sun.xml.bind", name = "jaxb-impl", version.ref = "jaxbImpl" }
 activation = { group = "javax.activation", name = "activation", version.ref = "activation" }
+apacheCommons = { group = "org.apache.commons", name = "commons-lang3", version.ref = "apacheCommons" }
 
 
 [bundles]
 logging = ["slf4j-api", "slf4j-log4j12", "log4j-api", "log4j-core", "log4j-slf4j-impl"]
-testLibs = ["restAssured", "restAssuredCommon", "jsonPath", "hamcrestAll", "jaxbApi", "jaxbCore", "jaxbImpl", "activation"]
+testLibs = ["restAssured", "restAssuredCommon", "jsonPath", "hamcrestAll", "jaxbApi", "jaxbCore", "jaxbImpl", "activation", "apacheCommons"]

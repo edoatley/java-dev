@@ -21,7 +21,6 @@ repositories {
 }
 
 dependencies {
-
         // Eclipse Jetty - provides a web server and servlet container. 
         // Note that since v12 artifacts that are EE specific are now isolated in their own EE specific layer.
         // This is why we have the ee10 servlet BoM and the jetty cory BoM
@@ -47,14 +46,11 @@ dependencies {
         testImplementation libs.bundles.logging 
         testImplementation libs.bundles.testLibs
 
-}
+        // add integration test dependencies - chosen to add separately so no main code pollutes the itest code
+        itestImplementation libs.junit.jupiter
+        itestImplementation libs.bundles.logging
+        itestImplementation libs.bundles.testLibs
 
-// have the itest dependencies match the test source set
-sourceSets {
-    itest {
-        compileClasspath += sourceSets.test.output
-        runtimeClasspath += sourceSets.test.output
-    }
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
