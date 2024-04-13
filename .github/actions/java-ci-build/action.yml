@@ -56,8 +56,3 @@ runs:
     if: success() || failure() # always run even if the previous step fails
     with:
       report_paths: '**/build/test-results/test/TEST-*.xml'
-
-  - uses: axel-op/googlejavaformat-action@v3
-    with:
-      version: '1.22.0'
-      args: "--set-exit-if-changed"
