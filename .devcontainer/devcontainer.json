@@ -31,6 +31,7 @@
 				"java.jdt.ls.java.home": "/usr/lib/jvm/msopenjdk-current",
 				"java.configuration.updateBuildConfiguration": "interactive",
 				"java.compile.nullAnalysis.mode": "automatic",
+				"java.format.settings.url": "https://raw.githubusercontent.com/google/styleguide/gh-pages/eclipse-java-google-style.xml",
 				"editor.formatOnPaste": false, // required
 				"editor.formatOnType": false, // required
 				"editor.formatOnSave": true, // optional

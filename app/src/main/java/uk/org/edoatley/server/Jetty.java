@@ -128,4 +128,8 @@ public class Jetty implements AutoCloseable {
         server.stop();
         server.destroy();
     }
+
+    public int getServicePort() {
+        return configuredPort;
+    }
 }

@@ -57,10 +57,7 @@ runs:
       with:
         report_paths: '**/build/test-results/test/TEST-*.xml'
 
-    - name: Temporarily save Jar file
-      uses: actions/upload-artifact@v4
-      with:
-        name: restapi-all.jar
-        path: ${{inputs.working-directory}}/build/libs/restapi-all.jar
-        retention-days: 1
-        overwrite: true
+    - uses: axel-op/googlejavaformat-action@v3
+        with:
+          version: '1.22.0'
+          args: "--set-exit-if-changed"    

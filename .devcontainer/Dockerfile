@@ -16,5 +16,7 @@ RUN chsh -s $(which zsh)
 RUN echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
 RUN echo 'eval "$(direnv hook zsh)"' >> ~/.zsh_profile
 
+RUN git clone https://github.com/justinludwig/gjfpc-hook.git ~/gjfpc-hook
+
 # [Optional] Uncomment this line to install global node packages.
 # RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1
