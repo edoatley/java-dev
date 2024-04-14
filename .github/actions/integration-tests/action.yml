@@ -61,6 +61,9 @@ runs:
       echo "free_port=$port" >> $GITHUB_OUTPUT
     shell: bash
 
+  - name: Print integration tests action
+    run: cat .github/actions/integration-tests/action.yml
+
   - name: Run App as a docker image
     working-directory: ${{ inputs.context }}
     run: |

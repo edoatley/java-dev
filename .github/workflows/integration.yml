@@ -20,8 +20,8 @@ jobs:
         uses: ./.github/actions/java-ci-build
         with:
           java-version: "21"
-          cache-encryption-key: ${{ secrets.GradleEncryptionKey }}   
-
+          cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
+          
       - name: Run Integration Tests
         uses: ./.github/actions/integration-tests
         with:
