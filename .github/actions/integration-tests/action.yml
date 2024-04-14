@@ -61,17 +61,14 @@ runs:
       echo "free_port=$port" >> $GITHUB_OUTPUT
     shell: bash
 
-  - name: Print integration tests action
-    run: cat .github/actions/integration-tests/action.yml
-
   - name: Run App as a docker image
     working-directory: ${{ inputs.context }}
     run: |
       docker run -d \
         -p ${{ steps.port.outputs.free_port }}:8443 \
-        --mount type=bind,source="$(pwd)/${{inputs.key-store}}",target=/home/app/tls/keystore.jks,readonly \
+        --mount type=bind,source=\"$(pwd)/${{inputs.key-store}}\",target=/home/app/tls/keystore.jks,readonly \
         --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
-        --name restapi ${{ inputs.image }}
+        --name restapi ${{ inputs.image }} 
     shell: bash
 
   - name: Run integration test
