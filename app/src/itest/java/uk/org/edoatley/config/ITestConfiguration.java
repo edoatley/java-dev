@@ -25,6 +25,8 @@ public class ITestConfiguration {
         keys = new HashSet<>();
         keys.add("server.port");
         keys.add("server.hostname");
+        keys.add("server.keystore");
+        keys.add("server.keystore.password");
 
         initialiseConfig();
 
