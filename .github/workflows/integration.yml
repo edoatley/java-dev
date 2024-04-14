@@ -1,4 +1,4 @@
-name: 'Build Docker App, run and run integration tests'
+name: 'Integration tests'
 on:
   push:
     branches:

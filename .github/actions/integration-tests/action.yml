@@ -16,6 +16,10 @@ inputs:
     description: 'Version of Gradle to setup'
     required: false
     default: 'current'
+  hostname:
+    description: 'Hostanme to use in integration tests'
+    required: false
+    default: 'integration.restapi.edoatley.com'
   key-store:
     description: 'Path to keystore file (relative to docker context)'
     required: false
@@ -57,20 +61,23 @@ runs:
       echo "free_port=$port" >> $GITHUB_OUTPUT
     shell: bash
 
-  - name: Run Docker Image
+  - name: Run App as a docker image
     working-directory: ${{ inputs.context }}
     run: |
       docker run -d \
         -p ${{ steps.port.outputs.free_port }}:8443 \
-        --mount type=bind,source="$(pwd)/${{inputs.key-store}}"",target=/home/app/tls/keystore.jks,readonly \
+        --mount type=bind,source="$(pwd)/${{inputs.key-store}}",target=/home/app/tls/keystore.jks,readonly \
         --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
         --name restapi ${{ inputs.image }}
     shell: bash
 
   - name: Run integration test
-    env:
-      SERVICE_URL: http://localhost:${{ steps.port.outputs.free_port }}
     working-directory: ${{ inputs.context }}
+    env:
+      SERVER_PORT: ${{ steps.port.outputs.free_port }}
+      SERVER_KEYSTORE: ${{inputs.key-store}}
+      SERVER_KEYSTORE_PASSWORD: ${{inputs.key-store-password}}
+      SERVER_HOSTNAME: ${{inputs.hostname}}
     run: |
       gradle integrationTest
     shell: bash
