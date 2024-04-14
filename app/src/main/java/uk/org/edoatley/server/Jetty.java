@@ -8,6 +8,7 @@ import org.eclipse.jetty.server.SecureRequestCustomizer;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.SslConnectionFactory;
+import org.eclipse.jetty.util.resource.PathResourceFactory;
 import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.resource.Resources;
@@ -47,7 +48,8 @@ public class Jetty implements AutoCloseable {
         Server server = new Server();
 
         // Add root servlet
-        ServletContextHandler contextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
+        ServletContextHandler contextHandler =
+                new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
         contextHandler.setContextPath("/");
         server.setHandler(contextHandler);
         log.debug("ServletContextHandler created");
@@ -84,10 +86,12 @@ public class Jetty implements AutoCloseable {
         Server server = newServerNoConnector();
 
         ResourceFactory resourceFactory = ResourceFactory.of(server);
+        PathResourceFactory pathResourceFactory = new PathResourceFactory();
 
         // Setup SSL
         SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setKeyStoreResource(findKeyStore(resourceFactory, keystore));
+        sslContextFactory
+                .setKeyStoreResource(findKeyStore(resourceFactory, pathResourceFactory, keystore));
         sslContextFactory.setKeyStorePassword(keystorePassword);
         sslContextFactory.setKeyManagerPassword(keystorePassword);
 
@@ -98,9 +102,9 @@ public class Jetty implements AutoCloseable {
         httpsConf.addCustomizer(new SecureRequestCustomizer()); // adds ssl info to request object
 
         // Establish the Secure ServerConnector
-        ServerConnector httpsConnector = new ServerConnector(server,
-                new SslConnectionFactory(sslContextFactory, "http/1.1"),
-                new HttpConnectionFactory(httpsConf));
+        ServerConnector httpsConnector =
+                new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                        new HttpConnectionFactory(httpsConf));
         httpsConnector.setPort(httpsPort);
         // httpsConnector.setHost("restapi.edoatley.com");
 
@@ -108,13 +112,24 @@ public class Jetty implements AutoCloseable {
         return server;
     }
 
-    private static Resource findKeyStore(ResourceFactory resourceFactory, String keystore) {
+    private static Resource findKeyStore(ResourceFactory resourceFactory,
+            PathResourceFactory pathResourceFactory, String keystore) {
 
         Resource resource = resourceFactory.newClassLoaderResource(keystore);
-        if (!Resources.isReadableFile(resource)) {
-            throw new RuntimeException("Unable to read " + keystore);
+        if (Resources.isReadableFile(resource)) {
+            log.debug("Read keystore from classpath");
+            return resource;
         }
-        return resource;
+
+        resource = pathResourceFactory.newResource(keystore);
+
+        if (resource.isReadable()) {
+            log.debug("Found keystore on file system");
+            return resource;
+        }
+
+        throw new RuntimeException("Unable to read " + keystore);
+
     }
 
     public String serviceUrl() {

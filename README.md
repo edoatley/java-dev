@@ -525,3 +525,9 @@ Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) wi
 
 We then need to amend our Jetty class so it configures the secure connectivity and update the unit tests so they are
 testing the secure endpoint and accept the TLS certificate presented.
+
+You can also do all this in a one liner:
+
+```bash
+keytool -genkey -alias restapi -dname "cn=integration.restapi.edoatley.com, ou=devops, o=edoatley, c=GB" -keyalg RSA -keystore itest-keystore.jks -keysize 2048 -validity 3650
+```

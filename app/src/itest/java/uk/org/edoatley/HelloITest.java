@@ -19,22 +19,16 @@ public class HelloITest {
     @BeforeEach
     void setup() {
         ITestConfiguration testConfiguration = new ITestConfiguration();
-        serviceUrl = testConfiguration.get("service.url");
-        if (serviceUrl != null && serviceUrl.endsWith("/")) {
-            serviceUrl = serviceUrl.substring(0, serviceUrl.length() - 1);
-        }
+        int servicePort = Integer.parseInt(testConfiguration.get("server.port"));
+        serviceUrl = "https://localhost:" + servicePort;
         log.info("Initialised HelloITest using the serviceUrl: {}", serviceUrl);
     }
 
     @Test
     @DisplayName("Call the /hello endpoint")
     public void testSimpleHello() {
-        when()
-                .get(serviceUrl + API_HELLO)
-                .then()
-                .statusCode(200)
-                .contentType(equalTo("application/json"))
-                .body("message", equalTo("Howdy!"));
+        when().get(serviceUrl + API_HELLO).then().statusCode(200)
+                .contentType(equalTo("application/json")).body("message", equalTo("Howdy!"));
 
     }
 
@@ -42,11 +36,7 @@ public class HelloITest {
     @DisplayName("Call the /api//hello endpoint with a name parameter")
     public void testNamedHello() {
         String name = RandomStringUtils.randomAlphabetic(8);
-        when()
-                .get(serviceUrl + API_HELLO + "/" + name)
-                .then()
-                .statusCode(200)
-                .contentType(equalTo("application/json"))
-                .body("message", equalTo("Hello " + name));
+        when().get(serviceUrl + API_HELLO + "/" + name).then().statusCode(200)
+                .contentType(equalTo("application/json")).body("message", equalTo("Hello " + name));
     }
 }

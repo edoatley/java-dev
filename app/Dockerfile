@@ -11,5 +11,7 @@ RUN chmod 755 /home/app
 # Copy the jar file
 COPY --chown=app:app build/libs/restapi-all.jar /home/app/restapi.jar
 
+EXPOSE 8443
+
 # Run the application
 CMD ["java", "-jar", "/home/app/restapi.jar"]

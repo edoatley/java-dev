@@ -16,6 +16,15 @@ inputs:
     description: 'Version of Gradle to setup'
     required: false
     default: 'current'
+  key-store:
+    description: 'Path to keystore file (relative to docker context)'
+    required: false
+    default: 'src/itest/resources/itest-keystore.jks'
+  key-store-password:
+    secret: true
+    description: 'Password for keystore'
+    required: false
+    default: 'itest'
 
 runs:
   using: 'composite'
@@ -49,8 +58,13 @@ runs:
     shell: bash
 
   - name: Run Docker Image
+    working-directory: ${{ inputs.context }}
     run: |
-      docker run -d -p ${{ steps.port.outputs.free_port }}:8080 --name restapi ${{ inputs.image }}
+      docker run -d \
+        -p ${{ steps.port.outputs.free_port }}:8443 \
+        --mount type=bind,source="$(pwd)/${{inputs.key-store}}"",target=/home/app/tls/keystore.jks,readonly \
+        --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
+        --name restapi ${{ inputs.image }}
     shell: bash
 
   - name: Run integration test
