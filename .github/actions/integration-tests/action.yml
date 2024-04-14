@@ -66,7 +66,7 @@ runs:
     run: |
       docker run -d \
         -p ${{ steps.port.outputs.free_port }}:8443 \
-        --mount type=bind,source=\"$(pwd)/${{inputs.key-store}}\",target=/home/app/tls/keystore.jks,readonly \
+        --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=/home/app/tls/keystore.jks,readonly \
         --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
         --name restapi ${{ inputs.image }} 
     shell: bash
