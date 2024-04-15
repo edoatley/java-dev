@@ -78,7 +78,7 @@ runs:
     shell: bash
 
   - name: Print the logs
-    run: docker logs -f --tail 10 restapi
+    run: docker logs --tail 50 restapi
     shell: bash
     if: always()
 

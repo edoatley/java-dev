@@ -1,7 +1,7 @@
 package uk.org.edoatley;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -9,6 +9,8 @@ import org.slf4j.LoggerFactory;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.SSLConfig;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 
@@ -22,8 +24,8 @@ public class HelloITest {
      * Setup RestAssured to: use the truststore, direct requests to the local server and use the
      * test hostname header
      */
-    @BeforeEach
-    void setupRestAssured() {
+    @BeforeAll
+    static void setupRestAssured() {
         ITestConfiguration testConfiguration = new ITestConfiguration();
 
         String truststore = testConfiguration.get("server.keystore");
@@ -38,6 +40,8 @@ public class HelloITest {
                 .sslConfig(new SSLConfig().trustStore(truststore, truststorePassword));
 
         RestAssured.baseURI = "https://localhost:" + servicePort;
+
+        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
 
         // @formatter:off
         RestAssured.requestSpecification = new RequestSpecBuilder()
