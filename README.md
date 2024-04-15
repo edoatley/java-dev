@@ -19,8 +19,8 @@ Investigating neat ways to do java cloud native dev
 - Build a basic API (Jetty/Jersey) and basic tests
 - Migrate all tests to JUnit 5 
 - Add TLS
-- Add AuthN
 - Add integration tests
+- Add AuthN
 - Update API so that it writes to DB
 - Add database as code / liquibase
 - Add CI
@@ -483,4 +483,80 @@ public class HelloResource {
 ```
 
 We can then define and run our tests in spock
+
+
+## Consolidate on JUnit5
+
+Rather than have some tests in groovy/spock and some written using JUnit I decided to migrate all the tests to use JUnit5, remove groovy so everything is java
+and add an integration test that can point at a configured endpoint.
+
+I decided to use RestAssured for the API testing and defined a docker build and run action which runs the integration test as part of it.
+
+I used gradle version catalog to define all the test dependencies once
+
+## Enable TLS
+
+The next task was to enable TLS connections on the Jetty server so that connections are secure.
+
+Firstly we can generate a keystore with
+
+```bash
+keytool -genkey -alias restapi -keyalg RSA -keystore test-keystore.jks -keysize 2048 -validity 3650
+Enter keystore password:
+Re-enter new password:
+What is your first and last name?
+  [Unknown]:  restapi.edoatley.com
+What is the name of your organizational unit?
+  [Unknown]:  devops
+What is the name of your organization?
+  [Unknown]:  edo
+What is the name of your City or Locality?
+  [Unknown]:  Reading
+What is the name of your State or Province?
+  [Unknown]:  Berkshire
+What is the two-letter country code for this unit?
+  [Unknown]:  GB
+Is CN=restapi.edoatley.com, OU=devops, O=edo, L=Reading, ST=Berkshire, C=GB correct?
+  [no]:  yes
+
+Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) with a validity of 3,650 days
+	for: CN=restapi.edoatley.com, OU=devops, O=edo, L=Reading, ST=Berkshire, C=GB
+```
+
+You can also do all this in a one liner:
+
+```bash
+keytool -genkey -alias restapi -dname "cn=integration.restapi.edoatley.com, ou=devops, o=edoatley, c=GB" -keyalg RSA -keystore itest-keystore.jks -keysize 2048 -validity 3650
+```
+
+We then need to amend our Jetty class so it configures the secure connectivity and update the unit tests so they are
+testing the secure endpoint and accept the TLS certificate presented.
+
+The key chunk of code that achieves this is:
+
+```java
+// Setup SSL
+SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+sslContextFactory
+        .setKeyStoreResource(findKeyStore(resourceFactory, pathResourceFactory, keystore));
+sslContextFactory.setKeyStorePassword(keystorePassword);
+sslContextFactory.setKeyManagerPassword(keystorePassword);
+
+// Setup HTTPS Configuration
+HttpConfiguration httpsConf = new HttpConfiguration();
+httpsConf.setSecurePort(httpsPort);
+httpsConf.setSecureScheme("https");
+httpsConf.addCustomizer(new SecureRequestCustomizer()); // adds ssl info to request object
+
+// Establish the Secure ServerConnector
+ServerConnector httpsConnector =
+        new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                new HttpConnectionFactory(httpsConf));
+httpsConnector.setPort(httpsPort);
+```
+
+The final change I made was to ensure that the JKS file is mounted at runtime to the dockerfile and all configurations
+can be overridden with environment variables to avoid any hardcoded secrets
+
+## Add API Authentication
 

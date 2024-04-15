@@ -1,4 +1,4 @@
-name: 'Build Docker App, run and run integration tests'
+name: 'Integration tests'
 on:
   push:
     branches:
@@ -20,7 +20,7 @@ jobs:
         with:
           java-version: "21"
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
-      
+          
       - name: Run Integration Tests
         uses: ./.github/actions/integration-tests
         with:

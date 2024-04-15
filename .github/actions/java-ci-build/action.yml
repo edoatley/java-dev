@@ -21,7 +21,7 @@ inputs:
   gradle-test-args:
     description: 'Arguments to pass to the gradle test command'
     required: false
-    default: 'test -x integrationTest'    
+    default: 'test -x integrationTest'
   cache-encryption-key:
     description: 'The encryption key to use for caching'
     required: false
@@ -29,38 +29,30 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Set up JDK
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'adopt'
-        java-version: '${{ inputs.java-version }}'
+  - name: Set up JDK
+    uses: actions/setup-java@v4
+    with:
+      distribution: 'adopt'
+      java-version: '${{ inputs.java-version }}'
 
-    - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
-      with:
-        gradle-version: '${{ inputs.gradle-version }}'
-        cache-encryption-key: ${{ inputs.cache-encryption-key }} 
+  - name: Setup Gradle
+    uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+    with:
+      gradle-version: '${{ inputs.gradle-version }}'
+      cache-encryption-key: ${{ inputs.cache-encryption-key }}
 
-    - name: Gradle clean and build
-      run: gradle ${{ inputs.gradle-build-args }}
-      shell: bash
-      working-directory: '${{ inputs.working-directory }}'
+  - name: Gradle clean and build
+    run: gradle ${{ inputs.gradle-build-args }}
+    shell: bash
+    working-directory: '${{ inputs.working-directory }}'
 
-    - name: Gradle Unit Test
-      run: gradle ${{ inputs.gradle-test-args }}
-      shell: bash
-      working-directory: '${{ inputs.working-directory }}'
-      
-    - name: Publish Test Report
-      uses: mikepenz/action-junit-report@v4
-      if: success() || failure() # always run even if the previous step fails
-      with:
-        report_paths: '**/build/test-results/test/TEST-*.xml'
+  - name: Gradle Unit Test
+    run: gradle ${{ inputs.gradle-test-args }}
+    shell: bash
+    working-directory: '${{ inputs.working-directory }}'
 
-    - name: Temporarily save Jar file
-      uses: actions/upload-artifact@v4
-      with:
-        name: restapi-all.jar
-        path: ${{inputs.working-directory}}/build/libs/restapi-all.jar
-        retention-days: 1
-        overwrite: true
+  - name: Publish Test Report
+    uses: mikepenz/action-junit-report@v4
+    if: success() || failure() # always run even if the previous step fails
+    with:
+      report_paths: '**/build/test-results/test/TEST-*.xml'
