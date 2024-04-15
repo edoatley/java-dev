@@ -94,6 +94,7 @@ public class Jetty implements AutoCloseable {
                 .setKeyStoreResource(findKeyStore(resourceFactory, pathResourceFactory, keystore));
         sslContextFactory.setKeyStorePassword(keystorePassword);
         sslContextFactory.setKeyManagerPassword(keystorePassword);
+        sslContextFactory.addExcludeProtocols("TLSv1", "TLSv1.1");
 
         // Setup HTTPS Configuration
         HttpConfiguration httpsConf = new HttpConfiguration();
@@ -106,7 +107,6 @@ public class Jetty implements AutoCloseable {
                 new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
                         new HttpConnectionFactory(httpsConf));
         httpsConnector.setPort(httpsPort);
-        // httpsConnector.setHost("restapi.edoatley.com");
 
         server.addConnector(httpsConnector);
         return server;
@@ -115,21 +115,22 @@ public class Jetty implements AutoCloseable {
     private static Resource findKeyStore(ResourceFactory resourceFactory,
             PathResourceFactory pathResourceFactory, String keystore) {
 
+        log.info("Retrieving keystore from {}", keystore);
+
         Resource resource = resourceFactory.newClassLoaderResource(keystore);
         if (Resources.isReadableFile(resource)) {
-            log.debug("Read keystore from classpath");
+            log.info("Read keystore from classpath");
             return resource;
         }
 
         resource = pathResourceFactory.newResource(keystore);
 
-        if (resource.isReadable()) {
-            log.debug("Found keystore on file system");
+        if (Resources.isReadableFile(resource)) {
+            log.info("Found keystore on file system");
             return resource;
         }
 
         throw new RuntimeException("Unable to read " + keystore);
-
     }
 
     public String serviceUrl() {
