@@ -523,11 +523,37 @@ Generating 2,048 bit RSA key pair and self-signed certificate (SHA256withRSA) wi
 	for: CN=restapi.edoatley.com, OU=devops, O=edo, L=Reading, ST=Berkshire, C=GB
 ```
 
-We then need to amend our Jetty class so it configures the secure connectivity and update the unit tests so they are
-testing the secure endpoint and accept the TLS certificate presented.
-
 You can also do all this in a one liner:
 
 ```bash
 keytool -genkey -alias restapi -dname "cn=integration.restapi.edoatley.com, ou=devops, o=edoatley, c=GB" -keyalg RSA -keystore itest-keystore.jks -keysize 2048 -validity 3650
 ```
+
+We then need to amend our Jetty class so it configures the secure connectivity and update the unit tests so they are
+testing the secure endpoint and accept the TLS certificate presented.
+
+The key chunk of code that achieves this is:
+
+```java
+// Setup SSL
+SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
+sslContextFactory
+        .setKeyStoreResource(findKeyStore(resourceFactory, pathResourceFactory, keystore));
+sslContextFactory.setKeyStorePassword(keystorePassword);
+sslContextFactory.setKeyManagerPassword(keystorePassword);
+
+// Setup HTTPS Configuration
+HttpConfiguration httpsConf = new HttpConfiguration();
+httpsConf.setSecurePort(httpsPort);
+httpsConf.setSecureScheme("https");
+httpsConf.addCustomizer(new SecureRequestCustomizer()); // adds ssl info to request object
+
+// Establish the Secure ServerConnector
+ServerConnector httpsConnector =
+        new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
+                new HttpConnectionFactory(httpsConf));
+httpsConnector.setPort(httpsPort);
+```
+
+The final change I made was to ensure that the JKS file is mounted at runtime to the dockerfile and all configurations
+can be overridden with environment variables to avoid any hardcoded secrets
