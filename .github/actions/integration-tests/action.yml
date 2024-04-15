@@ -51,7 +51,7 @@ runs:
     id: port
     run: |
       # find a random free port
-      free_port=$(python -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()');
+      free_port=$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()');
       echo "free_port=$port"
       echo "free_port=$port" >> $GITHUB_OUTPUT
     shell: bash
