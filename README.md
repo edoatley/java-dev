@@ -19,8 +19,8 @@ Investigating neat ways to do java cloud native dev
 - Build a basic API (Jetty/Jersey) and basic tests
 - Migrate all tests to JUnit 5 
 - Add TLS
-- Add AuthN
 - Add integration tests
+- Add AuthN
 - Update API so that it writes to DB
 - Add database as code / liquibase
 - Add CI
@@ -557,3 +557,6 @@ httpsConnector.setPort(httpsPort);
 
 The final change I made was to ensure that the JKS file is mounted at runtime to the dockerfile and all configurations
 can be overridden with environment variables to avoid any hardcoded secrets
+
+## Add API Authentication
+
