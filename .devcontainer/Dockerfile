@@ -14,9 +14,5 @@ RUN apt-get update \
 RUN chsh -s $(which zsh)
 # Set up direnv hook - Direnv is a tool for managing environment variables, and this configuration ensures that the direnv hook is executed in the shell.
 RUN echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc
-RUN echo 'eval "$(direnv hook zsh)"' >> ~/.zsh_profile
 
 RUN git clone https://github.com/justinludwig/gjfpc-hook.git ~/gjfpc-hook
-
-# [Optional] Uncomment this line to install global node packages.
-# RUN su vscode -c "source /usr/local/share/nvm/nvm.sh && npm install -g <your-package-here>" 2>&1

@@ -18,9 +18,13 @@ import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 import java.io.IOException;
 
-public class AppTest {
+/**
+ * This test runs against the local Jetty server where TLS has been configured to prove that the
+ * application is working as expected over HTTPS.
+ */
+public class AppSecureTest {
     private static final String API_HELLO = "/api/hello";
-    private static final Logger log = LoggerFactory.getLogger(AppTest.class);
+    private static final Logger log = LoggerFactory.getLogger(AppSecureTest.class);
     private static final String TRUST_STORE = "tls/test-keystore.jks";
     private static final String TRUST_STORE_PASSWORD = "testjks";
     private static final String TEST_HOSTNAME = "restapi.edoatley.com";
