@@ -28,7 +28,7 @@ inputs:
     secret: true
     description: 'Password for keystore'
     required: false
-    default: 'itest'
+    default: 'itestjks'
 
 runs:
   using: 'composite'
