@@ -50,8 +50,13 @@ runs:
   - name: Find Free Port
     id: port
     run: |
-      # find a random free port
-      free_port=$(python3 -c 'import socket; s=socket.socket(); s.bind(("", 0)); print(s.getsockname()[1]); s.close()');
+      # pick random number to start from
+      INCREMENT=1
+      port=$RANDOM
+
+      while [ -n "$(ss -tan4H "sport = $port")" ]; do
+        port=$((port+INCREMENT))
+      done
       echo "free_port=$port"
       echo "free_port=$port" >> $GITHUB_OUTPUT
     shell: bash
