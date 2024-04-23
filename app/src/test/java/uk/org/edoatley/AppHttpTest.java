@@ -9,7 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.restassured.RestAssured;
-
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import java.io.IOException;
 
 /**
@@ -25,6 +26,7 @@ public class AppHttpTest extends AppTests {
     public static void setUp() throws Exception {
         setupHttpServer();
         RestAssured.baseURI = "http://localhost:" + webapp.getServicePort();
+        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
     }
 
     /**

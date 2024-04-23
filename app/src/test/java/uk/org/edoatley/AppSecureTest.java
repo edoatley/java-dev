@@ -12,7 +12,8 @@ import org.slf4j.LoggerFactory;
 import io.restassured.RestAssured;
 import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.config.SSLConfig;
-
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import java.io.IOException;
 
 /**
@@ -51,6 +52,8 @@ public class AppSecureTest extends AppTests {
             .relaxedHTTPSValidation()
             .header("Host", TEST_HOSTNAME);
         // @formatter:on
+
+        RestAssured.filters(new RequestLoggingFilter(), new ResponseLoggingFilter());
     }
 
     /**
