@@ -3,7 +3,6 @@ package uk.org.edoatley.security;
 import java.io.IOException;
 import java.security.Principal;
 import jakarta.annotation.Priority;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -12,6 +11,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import uk.org.edoatley.security.idp.IdentityProvider;
+import uk.org.edoatley.security.idp.impl.DummyIdentityProvider;
 
 @Secured
 @Provider
@@ -22,13 +22,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     private static final String AUTHENTICATION_SCHEME = "Bearer";
 
 
-    // TODO: Figure out how to inject an identity provider
-    // https://jakarta.ee/specifications/dependency-injection/2.0/apidocs/jakarta/inject/inject,
-    // https://www.baeldung.com/guice,
-    // https://stackoverflow.com/questions/12540986/inversion-of-control-dependency-injection-and-strategy-pattern-with-examples-in
-
-    @Inject
-    private IdentityProvider identityProvider;
+    private IdentityProvider identityProvider = new DummyIdentityProvider();
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {

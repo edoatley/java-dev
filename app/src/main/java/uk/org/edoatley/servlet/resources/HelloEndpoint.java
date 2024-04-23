@@ -18,6 +18,9 @@ import uk.org.edoatley.servlet.model.Greeting;
 public class HelloEndpoint {
     private static final Logger log = LoggerFactory.getLogger(HelloEndpoint.class);
 
+    @Context
+    private SecurityContext securityContext;
+
     @GET
     public Greeting hello() {
         log.info("Request to /hello");
@@ -27,9 +30,10 @@ public class HelloEndpoint {
     @GET
     @Secured
     @Path("/{param}")
-    public Greeting hello(@PathParam("param") String name,
-            @Context SecurityContext securityContext) {
+    public Greeting hello(@PathParam("param") String name) {
         log.info("Request to /hello/{param}, param={}", name);
+        log.info("SecurityContext is {}", securityContext);
+        log.info("securityContext.getUserPrincipal() {}", securityContext.getUserPrincipal());
         log.info("The user requesting was {}", securityContext.getUserPrincipal().getName());
         return new Greeting("Hello " + name);
     }
