@@ -3,6 +3,7 @@ package uk.org.edoatley.security;
 import java.io.IOException;
 import java.security.Principal;
 import jakarta.annotation.Priority;
+import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -10,6 +11,7 @@ import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
+import uk.org.edoatley.security.idp.IdentityProvider;
 
 @Secured
 @Provider
@@ -18,6 +20,15 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
     private static final String REALM = "edoatley";
     private static final String AUTHENTICATION_SCHEME = "Bearer";
+
+
+    // TODO: Figure out how to inject an identity provider
+    // https://jakarta.ee/specifications/dependency-injection/2.0/apidocs/jakarta/inject/inject,
+    // https://www.baeldung.com/guice,
+    // https://stackoverflow.com/questions/12540986/inversion-of-control-dependency-injection-and-strategy-pattern-with-examples-in
+
+    @Inject
+    private IdentityProvider identityProvider;
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
@@ -37,7 +48,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
         try {
 
             // Validate the token
-            validateToken(token);
+            identityProvider.validateToken(token);
             setCurrentUserContext(requestContext, token);
 
         } catch (Exception e) {
@@ -51,7 +62,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
 
             @Override
             public Principal getUserPrincipal() {
-                return () -> lookupUser(token);
+                return () -> identityProvider.lookupUser(token);
             }
 
             @Override
@@ -69,14 +80,6 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                 return AUTHENTICATION_SCHEME;
             }
         });
-    }
-
-    private String lookupUser(String token) {
-        // TODO: replace with IdP
-        if (token.equals("mockToken")) {
-            return "mockUser";
-        }
-        throw new RuntimeException("Failed to extract user from token");
     }
 
     private boolean isTokenBasedAuthentication(String authorizationHeader) {
@@ -98,15 +101,5 @@ public class AuthenticationFilter implements ContainerRequestFilter {
                                 .header(HttpHeaders.WWW_AUTHENTICATE,
                                         AUTHENTICATION_SCHEME + " realm=\"" + REALM + "\"")
                                 .build());
-    }
-
-    private void validateToken(String token) throws Exception {
-        // Check if the token was issued by the server and if it's not expired
-        // Throw an Exception if the token is invalid
-
-        // TODO: replace with IdP
-        if (!token.equals("mockToken")) {
-            throw new RuntimeException("Failed to validate token");
-        }
     }
 }
