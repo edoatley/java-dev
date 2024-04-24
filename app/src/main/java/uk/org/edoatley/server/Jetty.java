@@ -1,5 +1,7 @@
 package uk.org.edoatley.server;
 
+import java.util.EnumSet;
+import org.eclipse.jetty.ee10.servlet.FilterHolder;
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
 import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -13,9 +15,13 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.resource.Resources;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.servlet.DispatcherType;
+import uk.org.edoatley.config.JettyResourceConfig;
+import uk.org.edoatley.security.AuthenticationFilter;
 
 public class Jetty implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(Jetty.class);
@@ -55,10 +61,8 @@ public class Jetty implements AutoCloseable {
         log.debug("ServletContextHandler created");
 
         // Adds Jersey servlet that will handle requests on /api/*
-        ServletHolder jerseyServlet = contextHandler.addServlet(ServletContainer.class, "/api/*");
-        jerseyServlet.setInitOrder(0);
-        jerseyServlet.setInitParameter("jersey.config.server.provider.packages",
-                "uk.org.edoatley.servlet.resources");
+        ServletHolder jerseyServlet = contextHandler
+                .addServlet(new ServletContainer(new JettyResourceConfig()), "/api/*");
         log.debug("ServletHolder created");
 
         return server;
