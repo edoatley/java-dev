@@ -3,7 +3,7 @@ plugins {
         id 'java'
         id 'application'
         id 'com.github.johnrengelman.shadow' version '8.1.1'
-        id 'com.softeq.gradle.itest' version '1.0.4'
+        id 'com.softeq.gradle.itest' version '1.0.4'        
 }
 
 project.ext {
@@ -35,7 +35,12 @@ dependencies {
         implementation "org.glassfish.jersey.containers:jersey-container-jetty-http"
         implementation "org.glassfish.jersey.media:jersey-media-json-jackson"
         implementation "org.glassfish.jersey.inject:jersey-hk2"
-        // implementation "org.glassfish.hk2:hk2-metadata-generator:2.6.1" // populates the bindings based on the annotations
+
+        // HK2 is the dependency injection framework used by Jersey
+        // https://eclipse-ee4j.github.io/glassfish-hk2/inhabitant-generator.html
+        implementation 'org.glassfish.hk2:hk2-metadata-generator:3.1.0'
+        implementation 'org.glassfish.hk2:hk2-utils:3.1.0'
+        implementation 'org.glassfish.hk2:hk2-api:3.1.0'
 
         // Note below we use the libs. Gradle Version Catalog syntax - see gradle/libs.versions.toml for the details
         
@@ -52,6 +57,11 @@ dependencies {
         itestImplementation libs.bundles.logging
         itestImplementation libs.bundles.testLibs
 
+}
+
+// TODO: why is this ignored and how can we get HK2 to generate the metadata
+compileJava {
+  options.compilerArgs << '-Aorg.glassfish.hk2.metadata.location=META-INF/hk2-locator/acme'
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
