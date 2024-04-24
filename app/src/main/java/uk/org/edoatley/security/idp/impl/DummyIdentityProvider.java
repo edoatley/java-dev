@@ -1,10 +1,12 @@
 package uk.org.edoatley.security.idp.impl;
 
 import java.util.Map;
+import org.jvnet.hk2.annotations.Service;
 import java.util.HashMap;
 import uk.org.edoatley.security.idp.IdentityProvider;
 import uk.org.edoatley.servlet.model.Credentials;
 
+@Service
 public class DummyIdentityProvider implements IdentityProvider {
 
     Map<String, String> users = new HashMap<>();

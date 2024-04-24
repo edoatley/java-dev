@@ -22,18 +22,18 @@ public abstract class AppTests {
             }
             """;
 
-    // @Test
-    // @DisplayName("Call the /hello endpoint")
-    // public void testSimpleHello() {
-    //     // @formatter:off
-    //     when().
-    //         get(API_HELLO).
-    //     then().
-    //         statusCode(200).
-    //         contentType(equalTo("application/json")).
-    //         body("message", equalTo("Howdy!"));
-    //     // @formatter:on
-    // }
+    @Test
+    @DisplayName("Call the /hello endpoint")
+    public void testSimpleHello() {
+        // @formatter:off
+        when().
+            get(API_HELLO).
+        then().
+            statusCode(200).
+            contentType(equalTo("application/json")).
+            body("message", equalTo("Howdy!"));
+        // @formatter:on
+    }
 
     @Test
     @DisplayName("Call the /hello endpoint with a name parameter")
@@ -52,35 +52,35 @@ public abstract class AppTests {
         // @formatter:on
     }
 
-    // @Test
-    // @DisplayName("Authenticate a user successfully")
-    // public void testAuthN() {
-    // login();
-    // }
+    @Test
+    @DisplayName("Authenticate a user successfully")
+    public void testAuthN() {
+        login();
+    }
 
-    // @Test
-    // @DisplayName("Fail to Authenticate a user as password wrong")
-    // public void testAuthNWrongPassword() {
-    // String authenticationBody = """
-    // {
-    // "username": "user",
-    // "password": "password1"
-    // }
-    // """;
-    // loginFailsWithStatus(authenticationBody, 403);
-    // }
+    @Test
+    @DisplayName("Fail to Authenticate a user as password wrong")
+    public void testAuthNWrongPassword() {
+        String authenticationBody = """
+                {
+                "username": "user",
+                "password": "password1"
+                }
+                """;
+        loginFailsWithStatus(authenticationBody, 403);
+    }
 
-    // @Test
-    // @DisplayName("Fail to Authenticate a invalid user ")
-    // public void testAuthNUnknownUser() {
-    // String authenticationBody = """
-    // {
-    // "username": "user1",
-    // "password": "password1"
-    // }
-    // """;
-    // loginFailsWithStatus(authenticationBody, 403);
-    // }
+    @Test
+    @DisplayName("Fail to Authenticate a invalid user ")
+    public void testAuthNUnknownUser() {
+        String authenticationBody = """
+                {
+                "username": "user1",
+                "password": "password1"
+                }
+                """;
+        loginFailsWithStatus(authenticationBody, 403);
+    }
 
     // Utility methods
 
