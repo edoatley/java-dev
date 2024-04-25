@@ -73,6 +73,7 @@ jobs:
         uses: ./.github/actions/integration-tests
         with:
           image: ${{ env.IMAGE_NAME }}:${{ steps.extract_branch.outputs.branch }}
+          registry: ghcr.io
           context: app
           java-version: ${{ env.JAVA_VERSION }}
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
