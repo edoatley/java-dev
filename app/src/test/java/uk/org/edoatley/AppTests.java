@@ -2,15 +2,13 @@ package uk.org.edoatley;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
 import static org.hamcrest.Matchers.equalTo;
 
 /**
- * This test runs against the local Jetty server where TLS has not been configured to prove that the
- * application is working as expected over HTTP.
+ * Thiese tests are the core tests we can run in 3 modes - HTTP, secured with TLS and integration.
  */
 public abstract class AppTests {
     private static final String API_HELLO = "/api/hello";
@@ -97,7 +95,7 @@ public abstract class AppTests {
             contentType(equalTo("application/json"));
     }
 
-    private void login() {
+    protected void login() {
         // @formatter:off
         given().
             body(VALID_USER_AUTHN_BODY).

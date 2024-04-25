@@ -16,7 +16,7 @@ import static org.hamcrest.Matchers.equalTo;
 
 import uk.org.edoatley.config.ITestConfiguration;
 
-public class HelloITest {
+public class HelloITest extends AppTests {
     private static final Logger log = LoggerFactory.getLogger(HelloITest.class);
     private static final String API_HELLO = "/api/hello";
 
@@ -51,23 +51,10 @@ public class HelloITest {
         // @formatter:on
     }
 
-
-    @Test
-    @DisplayName("Call the /api/hello endpoint")
-    public void testSimpleHello() {
-        // @formatter:off
-        when().
-            get(API_HELLO).
-        then().
-            statusCode(200).
-            contentType(equalTo("application/json")).
-            body("message", equalTo("Howdy!"));
-        // @formatter:on
-    }
-
     @Test
     @DisplayName("Call the /api/hello endpoint with a name parameter")
     public void testNamedHello() {
+        login();
         String name = RandomStringUtils.randomAlphabetic(8);
         // @formatter:off
         when().
