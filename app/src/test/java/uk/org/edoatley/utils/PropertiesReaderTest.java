@@ -20,6 +20,10 @@ public class PropertiesReaderTest {
         Properties expectedProperties = new Properties();
         expectedProperties.setProperty("server.port", "9090");
         expectedProperties.setProperty("server.context.path", "path");
+        expectedProperties.setProperty("service.mappings[0].interface",
+                "uk.org.edoatley.security.idp.IdentityProvider");
+        expectedProperties.setProperty("service.mappings[0].implementation",
+                "uk.org.edoatley.security.idp.impl.DummyIdentityProvider");
 
         // Act
         Properties actualProperties = PropertiesReader.readProperties("test-config.properties");
