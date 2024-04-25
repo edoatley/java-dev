@@ -1,7 +1,6 @@
 package uk.org.edoatley.server;
 
 import org.eclipse.jetty.ee10.servlet.ServletContextHandler;
-import org.eclipse.jetty.ee10.servlet.ServletHolder;
 import org.eclipse.jetty.server.HttpConfiguration;
 import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.SecureRequestCustomizer;
@@ -16,6 +15,7 @@ import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.org.edoatley.config.JettyResourceConfig;
 
 public class Jetty implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(Jetty.class);
@@ -55,10 +55,7 @@ public class Jetty implements AutoCloseable {
         log.debug("ServletContextHandler created");
 
         // Adds Jersey servlet that will handle requests on /api/*
-        ServletHolder jerseyServlet = contextHandler.addServlet(ServletContainer.class, "/api/*");
-        jerseyServlet.setInitOrder(0);
-        jerseyServlet.setInitParameter("jersey.config.server.provider.packages",
-                "uk.org.edoatley.servlet.resources");
+        contextHandler.addServlet(new ServletContainer(new JettyResourceConfig()), "/api/*");
         log.debug("ServletHolder created");
 
         return server;
@@ -94,6 +91,7 @@ public class Jetty implements AutoCloseable {
                 .setKeyStoreResource(findKeyStore(resourceFactory, pathResourceFactory, keystore));
         sslContextFactory.setKeyStorePassword(keystorePassword);
         sslContextFactory.setKeyManagerPassword(keystorePassword);
+        sslContextFactory.addExcludeProtocols("TLSv1", "TLSv1.1");
 
         // Setup HTTPS Configuration
         HttpConfiguration httpsConf = new HttpConfiguration();
@@ -106,7 +104,6 @@ public class Jetty implements AutoCloseable {
                 new ServerConnector(server, new SslConnectionFactory(sslContextFactory, "http/1.1"),
                         new HttpConnectionFactory(httpsConf));
         httpsConnector.setPort(httpsPort);
-        // httpsConnector.setHost("restapi.edoatley.com");
 
         server.addConnector(httpsConnector);
         return server;
@@ -115,21 +112,22 @@ public class Jetty implements AutoCloseable {
     private static Resource findKeyStore(ResourceFactory resourceFactory,
             PathResourceFactory pathResourceFactory, String keystore) {
 
+        log.info("Retrieving keystore from {}", keystore);
+
         Resource resource = resourceFactory.newClassLoaderResource(keystore);
         if (Resources.isReadableFile(resource)) {
-            log.debug("Read keystore from classpath");
+            log.info("Read keystore from classpath");
             return resource;
         }
 
         resource = pathResourceFactory.newResource(keystore);
 
-        if (resource.isReadable()) {
-            log.debug("Found keystore on file system");
+        if (Resources.isReadableFile(resource)) {
+            log.info("Found keystore on file system");
             return resource;
         }
 
         throw new RuntimeException("Unable to read " + keystore);
-
     }
 
     public String serviceUrl() {

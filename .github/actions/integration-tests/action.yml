@@ -28,7 +28,7 @@ inputs:
     secret: true
     description: 'Password for keystore'
     required: false
-    default: 'itest'
+    default: 'itestjks'
 
 runs:
   using: 'composite'
@@ -50,9 +50,9 @@ runs:
   - name: Find Free Port
     id: port
     run: |
-      BASE_PORT=1234
+      # pick random number to start from
       INCREMENT=1
-      port=$BASE_PORT
+      port=$RANDOM
 
       while [ -n "$(ss -tan4H "sport = $port")" ]; do
         port=$((port+INCREMENT))
@@ -63,12 +63,7 @@ runs:
 
   - name: Run App as a docker image
     working-directory: ${{ inputs.context }}
-    run: |
-      docker run -d \
-        -p ${{ steps.port.outputs.free_port }}:8443 \
-        --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=/home/app/tls/keystore.jks,readonly \
-        --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
-        --name restapi ${{ inputs.image }} 
+    run: "docker run -d \\\n  -p ${{ steps.port.outputs.free_port }}:8443 \\\n  --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=/home/app/tls/keystore.jks,readonly \\\n  --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \\\n  --name restapi ${{ inputs.image }} \n"
     shell: bash
 
   - name: Run integration test
@@ -82,13 +77,18 @@ runs:
       gradle integrationTest
     shell: bash
 
-  - name: Stop Running Docker Image
-    run: |
-      docker stop restapi
+  - name: Print the logs
+    run: docker logs --tail 50 restapi
     shell: bash
+    if: always()
+
+  - name: Stop Running Docker Image
+    run: docker stop restapi && docker rm restapi
+    shell: bash
+    if: always()
 
   - name: Publish Test Report
     uses: mikepenz/action-junit-report@v4
     if: success() || failure() # always run even if the previous step fails
     with:
-      report_paths: '**/build/test-results/itest/TEST-*.xml'
+      report_paths: '**/build/test-results/integrationTest/TEST-*.xml'

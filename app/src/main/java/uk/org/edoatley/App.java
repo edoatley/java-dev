@@ -1,12 +1,9 @@
 package uk.org.edoatley;
 
-import java.util.Properties;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+import uk.org.edoatley.config.ConfigurationManager;
 import uk.org.edoatley.server.Jetty;
-import uk.org.edoatley.utils.PropertiesReader;
 
 public class App {
 
@@ -18,10 +15,12 @@ public class App {
     private static final Logger log = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) throws Exception {
-        Properties props = configurationProperties();
-        int port = Integer.parseInt(props.getProperty(SERVER_PORT));
-        String keystore = props.getProperty(SERVER_KEYSTORE);
-        String keystorePassword = props.getProperty(SERVER_KEYSTORE_PASSWORD);
+
+        ConfigurationManager config = configurationProperties();
+
+        int port = Integer.parseInt(config.get(SERVER_PORT));
+        String keystore = config.get(SERVER_KEYSTORE);
+        String keystorePassword = config.get(SERVER_KEYSTORE_PASSWORD);
 
         try (Jetty webapp = new Jetty(port, keystore, keystorePassword)) {
             webapp.startServer(true);
@@ -29,12 +28,12 @@ public class App {
         }
     }
 
-    private static Properties configurationProperties() {
+    private static ConfigurationManager configurationProperties() {
         String configLocation = DEFAULT_CONFIG_PATH;
         if (System.getenv(CONFIG_LOCATION_ENV_VAR) != null) {
             configLocation = System.getenv(CONFIG_LOCATION_ENV_VAR);
         }
-        Properties props = PropertiesReader.readProperties(configLocation);
-        return props;
+        ConfigurationManager config = new ConfigurationManager(configLocation);
+        return config;
     }
 }

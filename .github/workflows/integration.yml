@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - main
+      - authn
   
 permissions:
   contents: read
