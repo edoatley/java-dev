@@ -95,6 +95,7 @@ public abstract class AppTests {
         then().
             statusCode(status).
             contentType(equalTo("application/json"));
+        // @formatter:on
     }
 
     protected void login() {
@@ -108,5 +109,6 @@ public abstract class AppTests {
         then().
             statusCode(200).
             contentType(equalTo("application/json"));
+        // @formatter:on
     }
 }
