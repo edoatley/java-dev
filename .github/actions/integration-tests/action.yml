@@ -20,6 +20,9 @@ inputs:
     description: 'Version of Gradle to setup'
     required: false
     default: 'current'
+  cache-encryption-key:
+    description: 'The encryption key to use for gradle caching'
+    required: false
   hostname:
     description: 'Hostanme to use in integration tests'
     required: false
@@ -75,7 +78,7 @@ runs:
     shell: bash
     run: |
       branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-      imagename="${{ inputs.registry }}/${{ inputs.image }}:$branch"
+      imagename="${{ inputs.registry }}/${{ inputs.image }}$branch"
       echo "name=$imagename"
       echo "name=$imagename" >> $GITHUB_OUTPUT
 
