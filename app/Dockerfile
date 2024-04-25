@@ -1,3 +1,4 @@
+# https://learn.microsoft.com/en-us/java/openjdk/containers
 ARG JAR_LOCATION=build/libs/restapi-all.jar
 ARG BASE_IMAGE=azul/zulu-openjdk-alpine:21
 
