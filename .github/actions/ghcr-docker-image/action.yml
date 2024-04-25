@@ -15,25 +15,27 @@ inputs:
     description: 'Container registry to push the image to'
     required: true
     default: 'ghcr.io'
+  base-image:
+    description: 'Base image to use for the Docker image'
+    required: true
+    default: 'mcr.microsoft.com/openjdk/jdk:21-distroless'
 
 runs:
   using: 'composite'
   steps:
+  
+  - name: Set up QEMU
+    uses: docker/setup-qemu-action@v3
+
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v3
+
   - name: Log in to the Container registry
     uses: docker/login-action@v3
     with:
       registry: ${{ inputs.registry }}
       username: ${{ github.actor }}
       password: ${{ github.token }}
-
-  - name: Find Dockerfile and jar files in this and child directories
-    id: find-files
-    run: |
-      echo "Looking for Dockerfiles in $(pwd) and child directories..."
-      find . -type f -name Dockerfile 
-      echo "Looking for jar files in $(pwd) and child directories..."
-      find . -type f -name '*.jar'
-    shell: bash
 
   # This step extracts tags and labels that will be applied to the specified image.
   - name: Extract metadata (tags, labels) for Docker
@@ -46,9 +48,11 @@ runs:
   - name: Build and push Docker image
     uses: docker/build-push-action@v5
     with:
+      platforms: linux/amd64,linux/arm64
       context: ${{ inputs.docker-context }}
       push: true
       tags: ${{ steps.meta.outputs.tags }}
       labels: ${{ steps.meta.outputs.labels }}
       build-args: |
         JAR_LOCATION=${{ inputs.jar-location }}
+        BASE_IMAGE=${{ inputs.base-image }}
