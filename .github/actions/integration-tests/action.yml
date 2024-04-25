@@ -71,7 +71,7 @@ runs:
       password: ${{ github.token }}
 
   - name: Pull the image
-    run: docker pull $${{inputs.registry}}/${{ inputs.image }}
+    run: docker pull ${{inputs.registry}}/${{ inputs.image }}
     shell: bash
 
   - name: Run App as a docker image
