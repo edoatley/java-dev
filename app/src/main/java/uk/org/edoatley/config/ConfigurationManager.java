@@ -13,7 +13,7 @@ import uk.org.edoatley.utils.PropertiesReader;
 public class ConfigurationManager {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
     private static final String DEFAULT_CONFIG_LOCATION = "config.properties";
-    private static final boolean DEBUG = false;
+    private static final boolean DEBUG = true;
     private Set<String> keys =
             Set.of("server.port", "server.hostname", "server.keystore", "server.keystore.password");
 

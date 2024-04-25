@@ -64,7 +64,7 @@ jobs:
       - name: Run Integration Tests
         uses: ./.github/actions/integration-tests
         with:
-          image: ${{ env.IMAGE_NAME }}:${{ steps.extract_branch.outputs.branch }}
+          image: ${{ env.IMAGE_NAME }}
           context: app
           java-version: ${{ env.JAVA_VERSION }}
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
