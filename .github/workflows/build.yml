@@ -61,14 +61,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Extract branch name
-        shell: bash
-        run: |
-          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-          echo "Extracted branch: $branch"
-          echo "branch=$branch" >> $GITHUB_OUTPUT
-        id: extract_branch
-
       - name: Run Integration Tests
         uses: ./.github/actions/integration-tests
         with:

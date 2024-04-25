@@ -70,8 +70,17 @@ runs:
       username: ${{ github.actor }}
       password: ${{ github.token }}
 
+  - name: Build image name
+    id: extract_image
+    shell: bash
+    run: |
+      branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+      imagename="${{ inputs.registry }}/${{ inputs.image }}:$branch"
+      echo "name=$imagename"
+      echo "name=$imagename" >> $GITHUB_OUTPUT
+
   - name: Pull the image
-    run: docker pull ${{inputs.registry}}/${{ inputs.image }}
+    run: docker pull ${{ steps.extract_image.outputs.name }}
     shell: bash
 
   - name: Run App as a docker image
@@ -81,7 +90,7 @@ runs:
         -p ${{ steps.port.outputs.free_port }}:8443 \
         --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=/home/app/tls/keystore.jks,readonly \
         --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
-        --name restapi ${{ inputs.image }}
+        --name restapi ${{ steps.extract_image.outputs.name }}
     shell: bash
 
   - name: Run integration test
