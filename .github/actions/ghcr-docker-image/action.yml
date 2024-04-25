@@ -26,6 +26,15 @@ runs:
       username: ${{ github.actor }}
       password: ${{ github.token }}
 
+  - name: Find Dockerfile and jar files in this and child directories
+    id: find-files
+    run: |
+      echo "Looking for Dockerfiles in $(pwd) and child directories..."
+      find . -type f -name Dockerfile 
+      echo "Looking for jar files in $(pwd) and child directories..."
+      find . -type f -name '*.jar'
+    shell: bash
+
   # This step extracts tags and labels that will be applied to the specified image.
   - name: Extract metadata (tags, labels) for Docker
     id: meta
@@ -37,7 +46,7 @@ runs:
   - name: Build and push Docker image
     uses: docker/build-push-action@v5
     with:
-      context: .
+      context: ${{ inputs.docker-context }}
       push: true
       tags: ${{ steps.meta.outputs.tags }}
       labels: ${{ steps.meta.outputs.labels }}

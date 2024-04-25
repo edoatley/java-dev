@@ -56,9 +56,3 @@ runs:
     if: success() || failure() # always run even if the previous step fails
     with:
       report_paths: '**/build/test-results/test/TEST-*.xml'
-
-  - name: Upload the restapi-all.jar file as an artifact
-    uses: actions/upload-artifact@v2
-    with:
-      name: restapi-all.jar
-      path: app/build/libs/restapi-all.jar
