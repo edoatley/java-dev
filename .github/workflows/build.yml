@@ -27,6 +27,8 @@ jobs:
         with:
           name: restapi-all.jar
           path: app/build/libs/restapi-all.jar
+          retention-days: 1
+          overwrite: true
 
   build-and-push-image:
     runs-on: ubuntu-latest
