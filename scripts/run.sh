@@ -118,15 +118,20 @@ done;
 strikingPrint "Step 4: Testing the application"
 
 # Try 5 times 5 seconds apart and fail if none succeed
+success_count=0
 for i in {1..5}; do
   curl -vvv -k \
       -H "Host: ${HOST_NAME}" \
       -H "Content-Type: application/json" \
       -d '{"username":"user","password":"password"}' \
-      "https://localhost:$free_port/api/authentication" && break || sleep 5
+      "https://localhost:$free_port/api/authentication" 
+  if [ $? -eq 0 ]; then
+    success_count=$((success_count+1))
+  fi
+  sleep 5
 done
 
-if [ $? -ne 0 ]; then
+if [ $success_count -eq 0 ]; then
   echo "CURL test failed after 5 attempts"
   exit 1
 fi

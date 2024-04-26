@@ -98,10 +98,23 @@ runs:
 
   - name: cURL the endpoint as a sense check
     run: |
-      curl -vvv -k -H "Host: ${{ inputs.hostname }}" \
-         -H "Content-Type: application/json" \
-         -d '{"username":"user","password":"password"}' \
-         https://localhost:${{ steps.port.outputs.free_port }}/api/authentication 
+      success_count=0
+      for i in {1..5}; do
+        curl -vvv -k \
+            -H "Host: ${{ inputs.hostname }}" \
+            -H "Content-Type: application/json" \
+            -d '{"username":"user","password":"password"}' \
+            "https://localhost:${{ steps.port.outputs.free_port }}/api/authentication" 
+        if [ $? -eq 0 ]; then
+          success_count=$((success_count+1))
+        fi
+        sleep 5
+      done
+      if [ $success_count -lt 3 ]; then
+        echo "Failed to connect to the server"
+        docker logs --tail 50 restapi
+        exit 1
+      fi
     shell: bash
 
   - name: Run integration test
