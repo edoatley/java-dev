@@ -8,6 +8,7 @@ inputs:
   docker-context:
     description: 'Directory to run the commands in'
     required: true
+    default: 'app'
   dockerfile:
     description: 'Name of the dockerfile to use for the Docker image build'
     required: true
@@ -15,6 +16,7 @@ inputs:
   jar-location:
     description: 'Location of the JAR file to be copied to the Docker image'
     required: true
+    default: 'app/build/libs/restapi-all.jar'
   registry:
     description: 'Container registry to push the image to'
     required: true
@@ -59,5 +61,5 @@ runs:
       tags: ${{ steps.meta.outputs.tags }}
       labels: ${{ steps.meta.outputs.labels }}
       build-args: |
-        JAR_LOCATION=${{ inputs.docker-context }}/${{ inputs.jar-location }}
+        JAR_FILE_LOCN=${{ inputs.jar-location }}
         BASE_IMAGE=${{ inputs.base-image }}
