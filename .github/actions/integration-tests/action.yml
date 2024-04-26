@@ -12,6 +12,7 @@ inputs:
   context:
     description: 'Docker file / app location'
     required: true
+    default: 'app'
   java-version:
     description: 'Version of JDK to setup'
     required: true
@@ -89,10 +90,11 @@ runs:
   - name: Run App as a docker image
     working-directory: ${{ inputs.context }}
     run: |
+      echo "Expect JKS at $(pwd)/${{inputs.key-store}}"
+      ls -l $(pwd)/${{inputs.key-store}}
       docker run -d \
         -p ${{ steps.port.outputs.free_port }}:8443 \
-        --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=/home/app/tls/keystore.jks,readonly \
-        --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
+        --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=/keystore.jks,readonly \
         --name restapi ${{ steps.extract_image.outputs.name }}
     shell: bash
 
