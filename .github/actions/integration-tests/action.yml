@@ -98,7 +98,7 @@ runs:
 
   - name: cURL the endpoint as a sense check
     run: |
-      curl -vvv -k -H "Host: ${{ inputs.hostname }}"" \
+      curl -vvv -k -H "Host: ${{ inputs.hostname }}" \
          -H "Content-Type: application/json" \
          -d '{"username":"user","password":"password"}' \
          https://localhost:${{ steps.port.outputs.free_port }}/api/authentication 
