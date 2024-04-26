@@ -87,7 +87,7 @@ runs:
     run: docker pull ${{ steps.extract_image.outputs.name }}
     shell: bash
 
-  - name: Run App as a docker image
+  - name: Run App as a docker image and capture startup logs
     working-directory: ${{ inputs.context }}
     env:
       # the two places the env var are used must align
