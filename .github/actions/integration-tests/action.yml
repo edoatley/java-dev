@@ -93,11 +93,15 @@ runs:
       # the two places the env var are used must align
       DOCKER_KEYSTORE_PATH: /keystore.jks
     run: |
-      docker run \
+      containerid=$(docker run -d \
         -p ${{ steps.port.outputs.free_port }}:8443 \
         --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=${{env.DOCKER_KEYSTORE_PATH}},readonly \
         --env SERVER_KEYSTORE=${{env.DOCKER_KEYSTORE_PATH}} \
-        --name restapi ${{ steps.extract_image.outputs.name }}
+        --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
+        --name restapi ${{ steps.extract_image.outputs.name }})
+      sleep 20
+      docker logs -t $containerid
+
     shell: bash
 
   - name: cURL the endpoint as a sense check
