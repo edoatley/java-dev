@@ -47,12 +47,12 @@ jobs:
           name: restapi-all.jar
           path: app
 
-      - name: Check for jar location
-        run: |
-          ls -l .
-          ls -l app
-          find . -name restapi-all.jar
-        shell: bash
+      # - name: Check for jar location
+      #   run: |
+      #     ls -l .
+      #     ls -l app
+      #     find . -name restapi-all.jar
+      #   shell: bash
 
       - name: Docker build and push to GHCR
         uses: ./.github/actions/ghcr-docker-image  
