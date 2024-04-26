@@ -116,15 +116,10 @@ runs:
       done
       if [ $success_count -lt 3 ]; then
         echo "Failed to connect to the server"
-        docker logs --tail 50 restapi
+        docker logs --tail 200 restapi
         exit 1
       fi
     shell: bash
-
-  - name: Print the logs from curling the endpoint
-    run: docker logs --tail 200 restapi
-    shell: bash
-    if: always()
 
   - name: Run integration test
     working-directory: ${{ inputs.context }}

@@ -47,11 +47,18 @@ jobs:
           name: restapi-all.jar
           path: app
 
+      - name: Check for jar location
+        run: |
+          ls -l .
+          ls -l app
+          find . -name restapi-all.jar
+        shell: bash
+
       - name: Docker build and push to GHCR
         uses: ./.github/actions/ghcr-docker-image  
         with:
           image-name: ${{ env.IMAGE_NAME }}
-          jar-location: ../restapi-all.jar
+          jar-location: restapi-all.jar
           # dockerfile: Dockerfile.distroless
           # base-image: mcr.microsoft.com/openjdk/jdk:21-distroless
           
