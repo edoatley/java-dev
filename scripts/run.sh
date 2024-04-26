@@ -49,14 +49,26 @@ exec >> ../logs/$logfile 2>&1
 ####################################################################################################
 # Step 1 Build the application
 ####################################################################################################
-strikingPrint "Step 1: Building the application" $blue
+strikingPrint "Step 1: Building the application"
 cd ../app
 ./gradlew clean build -x integrationTest
 
 ####################################################################################################
 # Step 2 Dockerise the application
 ####################################################################################################
-strikingPrint "Step 2: Dockerising the application" $blue
+strikingPrint "Step 2: Dockerising the application"
+
+echo "Running docker buildx build \
+  --no-cache \
+  --platform linux/arm64 \
+  --progress plain \
+  --build-arg JAR_FILE_LOCN=$JAR_LOCATION \
+  --build-arg BASE_IMAGE=$BASE_IMAGE \
+  --file $DOCKER_FILE \
+  --tag ${image_name} \
+  ."
+echo "Dockerfile:"
+cat $DOCKER_FILE
 
 docker buildx build \
   --no-cache \
@@ -78,7 +90,7 @@ sleep 5
 ####################################################################################################
 # Step 3 Run the application
 ####################################################################################################
-strikingPrint "Step 3: Running the application" $blue
+strikingPrint "Step 3: Running the application"
 # if the restapi container is there (from a previous run) stop and remove it
 if [ $(docker ps -a -q -f name=restapi) ]; then
   docker stop restapi
@@ -103,7 +115,7 @@ done;
 ####################################################################################################
 # Step 4 call the application using curl
 ####################################################################################################
-strikingPrint "Step 4: Testing the application" $blue
+strikingPrint "Step 4: Testing the application"
 
 # Try 5 times 5 seconds apart and fail if none succeed
 for i in {1..5}; do
@@ -122,7 +134,7 @@ fi
 ####################################################################################################
 # Step 5 run gradle integration tests
 ####################################################################################################
-strikingPrint "Step 5: Running the integration tests" $blue
+strikingPrint "Step 5: Running the integration tests"
 SERVER_PORT=${free_port} \
 SERVER_KEYSTORE=${JKS_LOCATION} \
 SERVER_KEYSTORE_PASSWORD=${JKS_PASSWORD} \
