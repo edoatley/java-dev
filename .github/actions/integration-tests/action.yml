@@ -89,12 +89,14 @@ runs:
 
   - name: Run App as a docker image
     working-directory: ${{ inputs.context }}
+    env:
+      # the two places the env var are used must align
+      DOCKER_KEYSTORE_PATH: /keystore.jks
     run: |
-      echo "Expect JKS at $(pwd)/${{inputs.key-store}}"
-      ls -l $(pwd)/${{inputs.key-store}}
       docker run -d \
         -p ${{ steps.port.outputs.free_port }}:8443 \
-        --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=/keystore.jks,readonly \
+        --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=${{env.DOCKER_KEYSTORE_PATH}},readonly \
+        --env SERVER_KEYSTORE=${{env.DOCKER_KEYSTORE_PATH}} \
         --name restapi ${{ steps.extract_image.outputs.name }}
     shell: bash
 
@@ -119,6 +121,11 @@ runs:
       fi
     shell: bash
 
+  - name: Print the logs from curling the endpoint
+    run: docker logs --tail 200 restapi
+    shell: bash
+    if: always()
+
   - name: Run integration test
     working-directory: ${{ inputs.context }}
     env:
@@ -130,7 +137,7 @@ runs:
       gradle integrationTest
     shell: bash
 
-  - name: Print the logs
+  - name: Print the logs from integration tests
     run: docker logs --tail 50 restapi
     shell: bash
     if: always()

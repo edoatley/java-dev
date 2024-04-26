@@ -99,8 +99,9 @@ fi
 
 docker run -d \
   -p ${free_port}:8443 \
-  --mount type=bind,source=$(pwd)/${JKS_LOCATION},target=/home/app/tls/keystore.jks,readonly \
+  --mount type=bind,source=$(pwd)/${JKS_LOCATION},target=/keystore.jks,readonly \
   --env SERVER_KEYSTORE_PASSWORD=${JKS_PASSWORD} \
+  --env SERVER_KEYSTORE=/keystore.jks \
   --name restapi ${image_name}
 
 if [ $? -ne 0 ]; then
