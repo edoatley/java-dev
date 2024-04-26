@@ -8,6 +8,10 @@ inputs:
   docker-context:
     description: 'Directory to run the commands in'
     required: true
+  dockerfile:
+    description: 'Name of the dockerfile to use for the Docker image build'
+    required: true
+    default: 'Dockerfile'
   jar-location:
     description: 'Location of the JAR file to be copied to the Docker image'
     required: true
@@ -18,12 +22,12 @@ inputs:
   base-image:
     description: 'Base image to use for the Docker image'
     required: true
-    default: 'mcr.microsoft.com/openjdk/jdk:21-distroless'
+    default: 'azul/zulu-openjdk-alpine:21'
 
 runs:
   using: 'composite'
   steps:
-  
+
   - name: Set up QEMU
     uses: docker/setup-qemu-action@v3
 
@@ -50,6 +54,7 @@ runs:
     with:
       platforms: linux/amd64,linux/arm64
       context: ${{ inputs.docker-context }}
+      file: ${{ inputs.docker-context }}/${{ inputs.dockerfile }}
       push: true
       tags: ${{ steps.meta.outputs.tags }}
       labels: ${{ steps.meta.outputs.labels }}
