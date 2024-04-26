@@ -16,7 +16,7 @@ inputs:
   jar-location:
     description: 'Location of the JAR file to be copied to the Docker image'
     required: true
-    default: 'app/build/libs/restapi-all.jar'
+    default: 'build/libs/restapi-all.jar'
   registry:
     description: 'Container registry to push the image to'
     required: true
