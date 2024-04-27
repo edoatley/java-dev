@@ -83,3 +83,15 @@ jobs:
       security-events: write
     with:
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
+  
+  sca:
+    runs-on: ubuntu-latest
+    needs: docker-build
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run Software Composition Analysis
+        uses: ./.github/actions/sca
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
