@@ -16,7 +16,9 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_TAG: ${{ inputs.image-tag || github.event.inputs.image-tag }}
-
+  
+permissions: 
+  security-events: write
 jobs:
   container-image-scan:
     name: Container Image Scan
@@ -35,8 +37,7 @@ jobs:
       uses: aquasecurity/trivy-action@0.19.0
       with:
         image-ref: ${{ env.IMAGE_TAG }}
-        format: 'template'
-        template: '@/contrib/sarif.tpl'
+        format: 'sarif'
         output: 'trivy-results.sarif'
         severity: 'CRITICAL,HIGH'
 
