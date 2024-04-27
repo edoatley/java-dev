@@ -1,0 +1,67 @@
+name: 'Java CI with Gradle'
+description: 'Sets up JDK, Gradle, and runs tests'
+
+inputs:
+  java-version:
+    description: 'Version of JDK to setup'
+    required: true
+    default: '21'
+  gradle-version:
+    description: 'Version of Gradle to setup'
+    required: false
+    default: 'current'
+  working-directory:
+    description: 'Directory to run the commands in'
+    required: false
+    default: 'app'
+  gradle-build-args:
+    description: 'Arguments to pass to the gradle build command'
+    required: false
+    default: 'clean build -x test -x integrationTest'
+  gradle-test-args:
+    description: 'Arguments to pass to the gradle test command'
+    required: false
+    default: 'test -x integrationTest'
+  cache-encryption-key:
+    description: 'The encryption key to use for caching'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    depchecktest:
+    runs-on: ubuntu-latest
+    name: depecheck_test
+    steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'adopt'
+        java-version: '${{ inputs.java-version }}'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@417ae3ccd767c252f5661f1ace9f835f9654f2b5 # v3.1.0
+      with:
+        gradle-version: '${{ inputs.gradle-version }}'
+        cache-encryption-key: ${{ inputs.cache-encryption-key }}
+
+    - name: Gradle clean and build
+      working-directory: '${{ inputs.working-directory }}'
+      shell: bash
+      run: gradle ${{ inputs.gradle-build-args }}
+
+    - name: Depcheck
+      uses: dependency-check/Dependency-Check_Action@main
+      id: Depcheck
+      with:
+        project: 'test'
+        path: '.'
+        format: 'HTML'
+        out: 'reports' # this is the default, no need to specify unless you wish to override it
+        args: >
+          --failOnCVSS 7 --enableRetired #magic___^_^___line
+    - name: Upload Test results
+      uses: actions/upload-artifact@master
+      with:
+        name: Depcheck report
+        path: ${{github.workspace}}/reports
