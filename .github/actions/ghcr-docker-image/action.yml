@@ -26,6 +26,10 @@ inputs:
     required: true
     default: 'azul/zulu-openjdk-alpine:21'
 
+outputs:
+  image-tag: ${{ steps.meta.outputs.tags }}
+  description: "Image tag"
+
 runs:
   using: 'composite'
   steps:

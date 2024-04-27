@@ -34,6 +34,8 @@ jobs:
   docker-build:
     runs-on: ubuntu-latest
     needs: java-build
+    outputs:
+      image-tag: ${{steps.docker.outputs.image-tag }}
     # Sets the permissions granted to the `GITHUB_TOKEN` for the actions in this job.
     permissions:
       contents: read
@@ -49,6 +51,7 @@ jobs:
 
       - name: Docker build and push to GHCR
         uses: ./.github/actions/ghcr-docker-image  
+        id: docker
         with:
           image-name: ${{ env.IMAGE_NAME }}
           jar-location: restapi-all.jar
@@ -68,3 +71,11 @@ jobs:
           image: ${{ env.IMAGE_NAME }}
           java-version: ${{ env.JAVA_VERSION }}
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
+
+  container-image-scan:
+    needs: docker-build
+    name: Scan docker image
+    uses: ./.github/workflows/container_image_scan.yml
+    secrets: inherit
+    with:
+      image-tag: ${{ needs.docker-build.outputs.image-tag }}
