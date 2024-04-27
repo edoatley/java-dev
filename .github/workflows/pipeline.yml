@@ -6,6 +6,7 @@ permissions:
   contents: read
   checks: write
   id-token: write
+  security-events: write
 
 env:
   IMAGE_NAME: ${{ github.repository }}
@@ -77,5 +78,8 @@ jobs:
     name: Scan docker image
     uses: ./.github/workflows/container_image_scan.yml
     secrets: inherit
+    permissions:
+      contents: read
+      security-events: write
     with:
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
