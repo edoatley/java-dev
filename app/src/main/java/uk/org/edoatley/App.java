@@ -1,8 +1,11 @@
 package uk.org.edoatley;
 
+import org.glassfish.jersey.server.ResourceConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import uk.org.edoatley.config.ConfigurationManager;
+import uk.org.edoatley.config.DependencyInjection;
+import uk.org.edoatley.config.JettyResourceConfig;
 import uk.org.edoatley.server.Jetty;
 
 public class App {
@@ -22,7 +25,8 @@ public class App {
         String keystore = config.get(SERVER_KEYSTORE);
         String keystorePassword = config.get(SERVER_KEYSTORE_PASSWORD);
 
-        try (Jetty webapp = new Jetty(port, keystore, keystorePassword)) {
+        ResourceConfig resourceConfig = new JettyResourceConfig(new DependencyInjection(config));
+        try (Jetty webapp = new Jetty(resourceConfig, port, keystore, keystorePassword)) {
             webapp.startServer(true);
             log.info("Application Server started");
         }

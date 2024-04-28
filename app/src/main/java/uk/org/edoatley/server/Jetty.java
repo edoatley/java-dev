@@ -12,10 +12,10 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.resource.Resources;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import uk.org.edoatley.config.JettyResourceConfig;
 
 public class Jetty implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(Jetty.class);
@@ -23,14 +23,16 @@ public class Jetty implements AutoCloseable {
 
     private Server server;
 
-    public Jetty(int configuredPort) {
+    public Jetty(ResourceConfig resourceConfig, int configuredPort) {
         this.configuredPort = configuredPort;
-        this.server = newServer(this.configuredPort);
+        this.server = newServer(resourceConfig, this.configuredPort);
     }
 
-    public Jetty(int configuredPort, String keystore, String keystorePassword) {
+    public Jetty(ResourceConfig resourceConfig, int configuredPort, String keystore,
+            String keystorePassword) {
         this.configuredPort = configuredPort;
-        this.server = newSecureServer(this.configuredPort, keystore, keystorePassword);
+        this.server =
+                newSecureServer(resourceConfig, this.configuredPort, keystore, keystorePassword);
     }
 
     public void startServer(boolean blocking) throws Exception {
@@ -44,7 +46,7 @@ public class Jetty implements AutoCloseable {
         }
     }
 
-    private static Server newServerNoConnector() {
+    private static Server newServerNoConnector(ResourceConfig resourceConfig) {
         Server server = new Server();
 
         // Add root servlet
@@ -55,32 +57,24 @@ public class Jetty implements AutoCloseable {
         log.debug("ServletContextHandler created");
 
         // Adds Jersey servlet that will handle requests on /api/*
-        contextHandler.addServlet(new ServletContainer(new JettyResourceConfig()), "/api/*");
+        contextHandler.addServlet(new ServletContainer(resourceConfig), "/api/*");
         log.debug("ServletHolder created");
 
         return server;
     }
 
-    private Server newServer(int httpPort) {
-        Server server = newServerNoConnector();
+    private Server newServer(ResourceConfig resourceConfig, int httpPort) {
+        Server server = newServerNoConnector(resourceConfig);
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(httpPort);
         server.addConnector(connector);
         return server;
     }
 
-    /**
-     * Make the server provided secure
-     * 
-     * (based on code taken from
-     * https://github.com/jetty/jetty-examples/blob/a93cfaf0b5f6a9d54c0b174739cddd5b9bda468e/embedded/ee10-websocket-jetty-api/src/main/java/examples/time/WebSocketTimeServer.java)
-     * 
-     * @param unsecuredServer a jetty server without TLS configuration
-     * @return a jetty server with TLS configuration
-     */
-    private Server newSecureServer(int httpsPort, String keystore, String keystorePassword) {
+    private Server newSecureServer(ResourceConfig resourceConfig, int httpsPort, String keystore,
+            String keystorePassword) {
 
-        Server server = newServerNoConnector();
+        Server server = newServerNoConnector(resourceConfig);
 
         ResourceFactory resourceFactory = ResourceFactory.of(server);
         PathResourceFactory pathResourceFactory = new PathResourceFactory();

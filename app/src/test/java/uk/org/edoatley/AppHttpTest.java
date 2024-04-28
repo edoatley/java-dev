@@ -1,8 +1,10 @@
 package uk.org.edoatley;
 
+import uk.org.edoatley.config.DependencyInjection;
+import uk.org.edoatley.config.JettyResourceConfig;
 import uk.org.edoatley.server.Jetty;
 import uk.org.edoatley.utils.NetworkUtil;
-
+import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.slf4j.Logger;
@@ -38,9 +40,9 @@ public class AppHttpTest extends AppTests {
     private static void setupHttpServer() throws IOException, Exception {
         log.info("Setting up Jetty EMbedded Server");
         int freePort = NetworkUtil.nextFreePort();
-
+        ResourceConfig resourceConfig = new TestResourceConfig();
         log.info("Starting the server on port {}", freePort);
-        webapp = new Jetty(freePort);
+        webapp = new Jetty(resourceConfig, freePort);
         webapp.startServer(false);
     }
 
