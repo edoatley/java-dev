@@ -12,10 +12,10 @@ import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.util.resource.ResourceFactory;
 import org.eclipse.jetty.util.resource.Resources;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.servlet.ServletContainer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import uk.org.edoatley.config.JettyResourceConfig;
 
 public class Jetty implements AutoCloseable {
     private static final Logger log = LoggerFactory.getLogger(Jetty.class);
@@ -23,16 +23,14 @@ public class Jetty implements AutoCloseable {
 
     private Server server;
 
-    public Jetty(ResourceConfig resourceConfig, int configuredPort) {
+    public Jetty(int configuredPort) {
         this.configuredPort = configuredPort;
-        this.server = newServer(resourceConfig, this.configuredPort);
+        this.server = newServer(this.configuredPort);
     }
 
-    public Jetty(ResourceConfig resourceConfig, int configuredPort, String keystore,
-            String keystorePassword) {
+    public Jetty(int configuredPort, String keystore, String keystorePassword) {
         this.configuredPort = configuredPort;
-        this.server =
-                newSecureServer(resourceConfig, this.configuredPort, keystore, keystorePassword);
+        this.server = newSecureServer(this.configuredPort, keystore, keystorePassword);
     }
 
     public void startServer(boolean blocking) throws Exception {
@@ -46,7 +44,7 @@ public class Jetty implements AutoCloseable {
         }
     }
 
-    private static Server newServerNoConnector(ResourceConfig resourceConfig) {
+    private static Server newServerNoConnector() {
         Server server = new Server();
 
         // Add root servlet
@@ -57,24 +55,23 @@ public class Jetty implements AutoCloseable {
         log.debug("ServletContextHandler created");
 
         // Adds Jersey servlet that will handle requests on /api/*
-        contextHandler.addServlet(new ServletContainer(resourceConfig), "/api/*");
+        contextHandler.addServlet(new ServletContainer(new JettyResourceConfig()), "/api/*");
         log.debug("ServletHolder created");
 
         return server;
     }
 
-    private Server newServer(ResourceConfig resourceConfig, int httpPort) {
-        Server server = newServerNoConnector(resourceConfig);
+    private Server newServer(int httpPort) {
+        Server server = newServerNoConnector();
         ServerConnector connector = new ServerConnector(server);
         connector.setPort(httpPort);
         server.addConnector(connector);
         return server;
     }
 
-    private Server newSecureServer(ResourceConfig resourceConfig, int httpsPort, String keystore,
-            String keystorePassword) {
+    private Server newSecureServer(int httpsPort, String keystore, String keystorePassword) {
 
-        Server server = newServerNoConnector(resourceConfig);
+        Server server = newServerNoConnector();
 
         ResourceFactory resourceFactory = ResourceFactory.of(server);
         PathResourceFactory pathResourceFactory = new PathResourceFactory();

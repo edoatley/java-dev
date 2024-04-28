@@ -1,25 +1,25 @@
 package uk.org.edoatley.config;
 
-import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import uk.org.edoatley.security.AuthenticationFilter;
-import uk.org.edoatley.security.idp.IdentityProvider;
 
 public class JettyResourceConfig extends ResourceConfig {
-    public JettyResourceConfig(DependencyInjection di) {
+    private static final Logger log = LoggerFactory.getLogger(JettyResourceConfig.class);
 
+    public JettyResourceConfig() {
+
+        log.info("Setting the packages");
         // add packages to scan for resources
         packages("uk.org.edoatley.servlet.resources");
 
+        log.info("Setting the IdP");
+        // Register the other IdP
+        register(IdentityProviderFeature.class);
+
+        log.info("Setting the auth filter");
         // Register Auth Filter here
         register(AuthenticationFilter.class);
-
-        // Register the other classes
-        register(new AbstractBinder() {
-            @Override
-            protected void configure() {
-                bind(IdentityProvider.class).to(di.getIdentityProvider());
-            }
-        });
     }
 }

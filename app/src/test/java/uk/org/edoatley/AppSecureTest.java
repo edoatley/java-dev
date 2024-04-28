@@ -2,7 +2,6 @@ package uk.org.edoatley;
 
 import uk.org.edoatley.server.Jetty;
 import uk.org.edoatley.utils.NetworkUtil;
-import org.glassfish.jersey.server.ResourceConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -67,8 +66,7 @@ public class AppSecureTest extends AppTests {
         int freePort = NetworkUtil.nextFreePort();
 
         log.info("Starting the server on port {}", freePort);
-        ResourceConfig resourceConfig = new TestResourceConfig();
-        webapp = new Jetty(resourceConfig, freePort, TRUST_STORE, TRUST_STORE_PASSWORD);
+        webapp = new Jetty(freePort, TRUST_STORE, TRUST_STORE_PASSWORD);
         webapp.startServer(false);
     }
 
