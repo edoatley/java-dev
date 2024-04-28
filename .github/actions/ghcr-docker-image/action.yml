@@ -1,0 +1,70 @@
+name: 'Java CI with Gradle'
+description: 'Sets up JDK, Gradle, and runs tests'
+
+inputs:
+  image-name:
+    description: 'Version of Gradle to setup'
+    required: true
+  docker-context:
+    description: 'Directory to run the commands in'
+    required: true
+    default: 'app'
+  dockerfile:
+    description: 'Name of the dockerfile to use for the Docker image build'
+    required: true
+    default: 'Dockerfile'
+  jar-location:
+    description: 'Location of the JAR file to be copied to the Docker image'
+    required: true
+    default: 'build/libs/restapi-all.jar'
+  registry:
+    description: 'Container registry to push the image to'
+    required: true
+    default: 'ghcr.io'
+  base-image:
+    description: 'Base image to use for the Docker image'
+    required: true
+    default: 'azul/zulu-openjdk-alpine:21'
+
+outputs:
+  image-tag:
+    value: ${{ steps.meta.outputs.tags }}
+    description: "Image tag"
+
+runs:
+  using: 'composite'
+  steps:
+
+  - name: Set up QEMU
+    uses: docker/setup-qemu-action@v3
+
+  - name: Set up Docker Buildx
+    uses: docker/setup-buildx-action@v3
+
+  - name: Log in to the Container registry
+    uses: docker/login-action@v3
+    with:
+      registry: ${{ inputs.registry }}
+      username: ${{ github.actor }}
+      password: ${{ github.token }}
+
+  # This step extracts tags and labels that will be applied to the specified image.
+  - name: Extract metadata (tags, labels) for Docker
+    id: meta
+    uses: docker/metadata-action@v5
+    with:
+      images: ${{ inputs.registry }}/${{ inputs.image-name }}
+
+  # This step builds and pushes the Docker image to the specified registry.
+  - name: Build and push Docker image
+    uses: docker/build-push-action@v5
+    with:
+      platforms: linux/amd64,linux/arm64
+      context: ${{ inputs.docker-context }}
+      file: ${{ inputs.docker-context }}/${{ inputs.dockerfile }}
+      push: true
+      tags: ${{ steps.meta.outputs.tags }}
+      labels: ${{ steps.meta.outputs.labels }}
+      build-args: |
+        JAR_FILE_LOCN=${{ inputs.jar-location }}
+        BASE_IMAGE=${{ inputs.base-image }}

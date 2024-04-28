@@ -59,11 +59,6 @@ dependencies {
 
 }
 
-// TODO: why is this ignored and how can we get HK2 to generate the metadata
-compileJava {
-  options.compilerArgs << '-Aorg.glassfish.hk2.metadata.location=META-INF/hk2-locator/acme'
-}
-
 // Apply a specific Java toolchain to ease working on different environments.
 java {
     toolchain {
