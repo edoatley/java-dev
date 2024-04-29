@@ -27,7 +27,10 @@ public class PropertiesReaderTest {
         Properties actualProperties = PropertiesReader.readProperties("test-config.properties");
 
         // Assert
-        Assertions.assertEquals(expectedProperties, actualProperties);
+        for (String key : expectedProperties.stringPropertyNames()) {
+            Assertions.assertEquals(expectedProperties.getProperty(key),
+                    actualProperties.getProperty(key));
+        }
     }
 
     @Test

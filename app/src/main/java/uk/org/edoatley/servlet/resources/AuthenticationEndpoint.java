@@ -9,7 +9,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import uk.org.edoatley.security.idp.IdentityProvider;
-import uk.org.edoatley.security.idp.IdentityProviderEnum;
 import uk.org.edoatley.security.idp.IdentityProviderFactory;
 import uk.org.edoatley.servlet.model.Credentials;
 
@@ -17,7 +16,7 @@ import uk.org.edoatley.servlet.model.Credentials;
 public class AuthenticationEndpoint {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationEndpoint.class);
 
-    private IdentityProvider identityProvider = IdentityProviderFactory.getIdentityProvider(IdentityProviderEnum.DUMMY);
+    private IdentityProvider identityProvider = IdentityProviderFactory.getIdentityProvider();
 
     /**
      * Takes payload that looks like this:

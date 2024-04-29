@@ -13,7 +13,6 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import uk.org.edoatley.security.idp.IdentityProvider;
-import uk.org.edoatley.security.idp.IdentityProviderEnum;
 import uk.org.edoatley.security.idp.IdentityProviderFactory;
 
 @Secured
@@ -24,7 +23,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     private static final String REALM = "edoatley";
     private static final String AUTHENTICATION_SCHEME = "Bearer";
 
-    private IdentityProvider identityProvider = IdentityProviderFactory.getIdentityProvider(IdentityProviderEnum.DUMMY);
+    private IdentityProvider identityProvider = IdentityProviderFactory.getIdentityProvider();
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
