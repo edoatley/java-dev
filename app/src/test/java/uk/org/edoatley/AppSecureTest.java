@@ -1,6 +1,8 @@
 package uk.org.edoatley;
 
+import uk.org.edoatley.config.ConfigurationManager;
 import uk.org.edoatley.server.Jetty;
+import uk.org.edoatley.server.JettyFactory;
 import uk.org.edoatley.utils.NetworkUtil;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
@@ -30,6 +32,7 @@ public class AppSecureTest extends AppTests {
 
     @BeforeAll
     public static void setUp() throws Exception {
+        ConfigurationManager.initialise("test-config.properties", false);
         setupServer();
         setupRestAssured();
     }
@@ -62,11 +65,11 @@ public class AppSecureTest extends AppTests {
      * @throws Exception
      */
     private static void setupServer() throws IOException, Exception {
-        log.info("Setting up Jetty EMbedded Server");
+        log.info("Setting up Jetty Embedded Server");
         int freePort = NetworkUtil.nextFreePort();
-
+        ConfigurationManager.override("server.port", String.valueOf(freePort));
         log.info("Starting the server on port {}", freePort);
-        webapp = new Jetty(freePort, TRUST_STORE, TRUST_STORE_PASSWORD);
+        webapp = JettyFactory.newSecureInstance();
         webapp.startServer(false);
     }
 

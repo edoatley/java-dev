@@ -3,62 +3,103 @@ package uk.org.edoatley.config;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.org.edoatley.utils.PropertiesReader;
 
+/**
+ * The ConfigurationManager class is responsible for managing the application configuration. It
+ * provides methods to initialize the configuration, retrieve configuration values, and override
+ * configuration values for testing purposes.
+ */
+/**
+ * The ConfigurationManager class is responsible for managing the configuration properties of the
+ * application. It provides methods to initialize the configuration, retrieve configuration values,
+ * and override configuration values for testing purposes.
+ */
 public class ConfigurationManager {
     private static final Logger log = LoggerFactory.getLogger(ConfigurationManager.class);
-    private static final String DEFAULT_CONFIG_LOCATION = "config.properties";
-    private static final boolean DEBUG = true;
-    private Set<String> keys =
-            Set.of("server.port", "server.hostname", "server.keystore", "server.keystore.password");
 
-    private Map<String, String> config;
+    private static Map<String, String> config = new HashMap<>();
 
-    public ConfigurationManager() {
-        this(DEFAULT_CONFIG_LOCATION);
-    }
 
-    public ConfigurationManager(String configFile) {
 
-        Properties properties = PropertiesReader.readProperties(configFile);
+    /**
+     * Initializes the configuration manager with the specified configuration location and
+     * environment usage flag.
+     *
+     * @param configLocation the location of the configuration file
+     * @param useEnvironment flag indicating whether to use environment variables for configuration
+     */
+    public synchronized static void initialise(String configLocation, boolean useEnvironment) {
+        Properties properties = PropertiesReader.readProperties(configLocation);
 
-        initialiseConfig(properties);
+        initialiseConfig(properties, useEnvironment);
 
+        // print result
         config.entrySet().forEach(entry -> log.debug("ConfigurationManager: {}={}", entry.getKey(),
                 entry.getValue()));
-
-        if (DEBUG) {
-            log.info("ConfigurationManager: Configuration loaded from {}", configFile);
-            keys.forEach(key -> log.info("Key {} has value {}", key, config.get(key)));
-        }
     }
 
-    private void initialiseConfig(Properties properties) {
+    /**
+     * Retrieves the configuration value for the specified key.
+     *
+     * @param key the configuration key
+     * @return the configuration value
+     */
+    public synchronized static String get(String key) {
+        return config.get(key);
+    }
 
-        config = new HashMap<>();
-        keys.forEach(key -> {
+    // expect this to only really be for testing
+    /**
+     * Overrides the value associated with the specified key in the configuration. If the key
+     * already exists, its value will be updated. If the key does not exist, a new key-value pair
+     * will be added to the configuration.
+     *
+     * @param key the key to override
+     * @param value the new value to associate with the key
+     */
+    public synchronized static void override(String key, String value) {
+        config.put(key, value);
+    }
+
+
+    /**
+     * Initializes the configuration properties based on the provided properties and environment
+     * variables. If the 'useEnvironment' flag is set to true, the method checks for corresponding
+     * environment variables and uses them instead of the property values.
+     *
+     * @param properties The properties containing the configuration values.
+     * @param useEnvironment A flag indicating whether to use environment variables or not.
+     */
+    private static void initialiseConfig(Properties properties, boolean useEnvironment) {
+        properties.stringPropertyNames().forEach(key -> {
             String configuredValue = properties.getProperty(key);
-            String envValue = getEnvValue(key);
-            if (envValue == null && configuredValue == null) {
-                log.error("Configuration key {} not found in properties file or environment", key);
-            } else {
-                config.put(key, envValue != null ? envValue : configuredValue);
+            if (useEnvironment) {
+                String envValue = getEnvValue(key);
+                if (envValue != null) {
+                    log.info(key + " - using env value:" + envValue + " instead of property value:"
+                            + configuredValue);
+                    configuredValue = envValue;
+                }
             }
+            log.info(key + "=" + config.get(key));
+            config.put(key, configuredValue);
         });
     }
 
-    private String getEnvValue(String key) {
+    /**
+     * Retrieves the value of the specified environment variable.
+     *
+     * @param key the name of the environment variable
+     * @return the value of the environment variable, or null if it is not set
+     */
+    private static String getEnvValue(String key) {
         String envKey = key.toUpperCase().replace(".", "_");
         String envValue = System.getenv(envKey);
         return envValue;
-    }
-
-    public String get(String key) {
-        return config.get(key);
     }
 }
