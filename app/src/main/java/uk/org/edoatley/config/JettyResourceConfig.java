@@ -14,10 +14,6 @@ public class JettyResourceConfig extends ResourceConfig {
         // add packages to scan for resources
         packages("uk.org.edoatley.servlet.resources");
 
-        log.info("Setting the IdP");
-        // Register the other IdP
-        register(IdentityProviderFeature.class);
-
         log.info("Setting the auth filter");
         // Register Auth Filter here
         register(AuthenticationFilter.class);

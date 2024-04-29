@@ -2,7 +2,6 @@ package uk.org.edoatley.servlet.resources;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -10,14 +9,15 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import uk.org.edoatley.security.idp.IdentityProvider;
+import uk.org.edoatley.security.idp.IdentityProviderEnum;
+import uk.org.edoatley.security.idp.IdentityProviderFactory;
 import uk.org.edoatley.servlet.model.Credentials;
 
 @Path("/authentication")
 public class AuthenticationEndpoint {
     private static final Logger log = LoggerFactory.getLogger(AuthenticationEndpoint.class);
 
-    @Inject
-    private IdentityProvider identityProvider;
+    private IdentityProvider identityProvider = IdentityProviderFactory.getIdentityProvider(IdentityProviderEnum.DUMMY);
 
     /**
      * Takes payload that looks like this:
