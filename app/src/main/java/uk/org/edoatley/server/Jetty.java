@@ -69,15 +69,6 @@ public class Jetty implements AutoCloseable {
         return server;
     }
 
-    /**
-     * Make the server provided secure
-     * 
-     * (based on code taken from
-     * https://github.com/jetty/jetty-examples/blob/a93cfaf0b5f6a9d54c0b174739cddd5b9bda468e/embedded/ee10-websocket-jetty-api/src/main/java/examples/time/WebSocketTimeServer.java)
-     * 
-     * @param unsecuredServer a jetty server without TLS configuration
-     * @return a jetty server with TLS configuration
-     */
     private Server newSecureServer(int httpsPort, String keystore, String keystorePassword) {
 
         Server server = newServerNoConnector();

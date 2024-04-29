@@ -5,7 +5,6 @@ import java.security.Principal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import jakarta.annotation.Priority;
-import jakarta.inject.Inject;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
@@ -14,6 +13,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import jakarta.ws.rs.ext.Provider;
 import uk.org.edoatley.security.idp.IdentityProvider;
+import uk.org.edoatley.security.idp.IdentityProviderFactory;
 
 @Secured
 @Provider
@@ -23,8 +23,7 @@ public class AuthenticationFilter implements ContainerRequestFilter {
     private static final String REALM = "edoatley";
     private static final String AUTHENTICATION_SCHEME = "Bearer";
 
-    @Inject
-    private IdentityProvider identityProvider;
+    private IdentityProvider identityProvider = IdentityProviderFactory.getIdentityProvider();
 
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {

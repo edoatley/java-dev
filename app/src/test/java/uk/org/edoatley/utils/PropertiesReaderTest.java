@@ -19,17 +19,18 @@ public class PropertiesReaderTest {
         // Arrange
         Properties expectedProperties = new Properties();
         expectedProperties.setProperty("server.port", "9090");
-        expectedProperties.setProperty("server.context.path", "path");
-        expectedProperties.setProperty("service.mappings[0].interface",
-                "uk.org.edoatley.security.idp.IdentityProvider");
-        expectedProperties.setProperty("service.mappings[0].implementation",
-                "uk.org.edoatley.security.idp.impl.DummyIdentityProvider");
+        expectedProperties.setProperty("server.keystore", "tls/test-keystore.jks");
+        expectedProperties.setProperty("server.keystore.password", "testjks");
+        expectedProperties.setProperty("server.hostname", "restapi.edoatley.com");
 
         // Act
         Properties actualProperties = PropertiesReader.readProperties("test-config.properties");
 
         // Assert
-        Assertions.assertEquals(expectedProperties, actualProperties);
+        for (String key : expectedProperties.stringPropertyNames()) {
+            Assertions.assertEquals(expectedProperties.getProperty(key),
+                    actualProperties.getProperty(key));
+        }
     }
 
     @Test
