@@ -12,6 +12,9 @@ Investigating neat ways to do java cloud native dev
       - [Deeper validation: act (github actions local development)](#deeper-validation-act-github-actions-local-development)
       - [Deeper validation: git](#deeper-validation-git)
   - [Build a basic API (Jetty/Jersey) and basic tests](#build-a-basic-api-jettyjersey-and-basic-tests)
+  - [Consolidate on JUnit5](#consolidate-on-junit5)
+  - [Enable TLS](#enable-tls)
+  - [Auth0 authentication](#auth0-authentication)
 
 ## Plan
 
@@ -560,3 +563,25 @@ can be overridden with environment variables to avoid any hardcoded secrets
 
 ## Add API Authentication
 
+For this step I first added the ability to authenticate using tokens issued by an Identity Provider. For this I defined a simple
+interface:
+
+```java
+public interface IdentityProvider {
+    void validateToken(String token) throws Exception;
+
+    String lookupUser(String token);
+
+    void authenticate(Credentials credentials) throws Exception;
+
+    String issueToken(String username);
+}
+```
+
+I then created a factory to instantiate different types of IdPs after some painful experimentation with HK2 dependency injection.
+
+The factory will create the IdP based on the `config.properties` 
+
+The next step is to look at a real IdP for AuthN
+
+## Auth0 authentication

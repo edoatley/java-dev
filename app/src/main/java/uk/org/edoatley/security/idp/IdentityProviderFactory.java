@@ -1,7 +1,7 @@
 package uk.org.edoatley.security.idp;
 
 import java.util.Map;
-import jakarta.validation.Configuration;
+import java.util.function.Supplier;
 import java.util.HashMap;
 import uk.org.edoatley.config.ConfigurationManager;
 import uk.org.edoatley.security.idp.impl.DummyIdentityProvider;
@@ -23,25 +23,19 @@ public class IdentityProviderFactory {
             IdentityProviderEnum identityProviderEnum) {
         switch (identityProviderEnum) {
             case NOOP:
-                if (identityProviderMap.get(identityProviderEnum) == null) {
-                    identityProviderMap.put(identityProviderEnum, new NoopIdentityProvider());
-                }
-                return identityProviderMap.get(identityProviderEnum);
+                return singleton(identityProviderEnum, () -> new NoopIdentityProvider());
             case DUMMY:
-                if (identityProviderMap.get(identityProviderEnum) == null) {
-                    identityProviderMap.put(identityProviderEnum, new DummyIdentityProvider());
-                }
-                return identityProviderMap.get(identityProviderEnum);
-            // case AUTH0:
-            // return new Auth0IdentityProvider();
-            // case ENTRA_ID:
-            // return new EntraIdIdentityProvider();
-            // case AWS:
-            // return new AwsIdentityProvider();
+                return singleton(identityProviderEnum, () -> new DummyIdentityProvider());
             default:
                 throw new IllegalArgumentException("Unknown Identity Provider");
         }
     }
 
-
+    private static synchronized IdentityProvider singleton(
+            IdentityProviderEnum identityProviderEnum, Supplier<IdentityProvider> instantiator) {
+        if (identityProviderMap.get(identityProviderEnum) == null) {
+            identityProviderMap.put(identityProviderEnum, instantiator.get());
+        }
+        return identityProviderMap.get(identityProviderEnum);
+    }
 }
