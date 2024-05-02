@@ -1,0 +1,64 @@
+# export APPLICATION_IMAGE=<docker image fully qualified e.g. "restapi:v1">
+# export JKS_LOCATION=<path from this file directory to the JKS e.g. "app/src/main/resources/tls/keystore.jks">
+services:
+  app:
+    image: ${APPLICATION_IMAGE}
+    container_name: restapi
+    environment:
+      SERVER_PORT: 8081
+      SERVER_KEYSTORE: /keystore.jks
+    ports:
+      - 8081:8081
+    # not ${PWD} not $(pwd)  
+    volumes:
+      - ${PWD}/${JKS_LOCATION}:/keystore.jks
+    depends_on:
+      - appdb
+      - keycloak_web
+
+  keycloak_web:
+    image: quay.io/keycloak/keycloak:23.0.7
+    container_name: keycloak_web
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloakdb:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: password
+
+      KC_HOSTNAME: localhost
+      KC_HOSTNAME_PORT: 8080
+      KC_HOSTNAME_STRICT: false
+      KC_HOSTNAME_STRICT_HTTPS: false
+
+      KC_LOG_LEVEL: info
+      KC_METRICS_ENABLED: true
+      KC_HEALTH_ENABLED: true
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    depends_on:
+      - keycloakdb
+    ports:
+      - 8080:8080
+
+  keycloakdb:
+    image: postgres:15
+    volumes:
+      - postgres_data_keycloakdb:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: password
+
+  appdb:
+    image: postgres:15
+    volumes:
+      - postgres_data_appdb:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: restapi
+      POSTGRES_USER: appuser
+      POSTGRES_PASSWORD: password
+
+volumes:
+  postgres_data_keycloakdb:
+  postgres_data_appdb:
