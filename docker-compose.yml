@@ -11,7 +11,7 @@ services:
       - 8081:8081
     # not ${PWD} not $(pwd)  
     volumes:
-      - ${PWD}/${JKS_LOCATION}:/keystore.jks
+      - ${JKS_LOCATION}:/keystore.jks
     depends_on:
       - appdb
       - keycloak_web

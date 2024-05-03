@@ -51,7 +51,7 @@
 				"kennylong.kubernetes-yaml-formatter"
 			]
 		}
-	}
+	},
 	// root or vscode
-	//"remoteUser": "root"
+	"remoteUser": "root"
 }
