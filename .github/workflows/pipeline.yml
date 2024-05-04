@@ -56,7 +56,7 @@ jobs:
         with:
           image-name: ${{ env.IMAGE_NAME }}
           jar-location: restapi-all.jar
-          dockerfile: Dockerfile.distroless
+          dockerfile: docker/Dockerfile.distroless
           base-image: mcr.microsoft.com/openjdk/jdk:21-distroless
           
   # could consider only running for certain branches          

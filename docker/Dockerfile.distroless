@@ -3,7 +3,7 @@ ARG BASE_IMAGE=mcr.microsoft.com/openjdk/jdk:21-distroless
 FROM ${BASE_IMAGE}
 
 # Important scope the ARG after the FROM!!!
-ARG JAR_FILE_LOCN=build/libs/restapi-all.jar
+ARG JAR_FILE_LOCN=../app/build/libs/restapi-all.jar
 
 # Copy the jar file
 COPY $JAR_FILE_LOCN /app.jar
