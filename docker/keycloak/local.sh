@@ -13,4 +13,4 @@ docker buildx build --platform linux/amd64 \
 
 docker run -p $LOCALPORT:8080 \
   $KEYCLOAK_LOCAL_IMAGE \
-  start-dev
+  start-dev --import-realm
