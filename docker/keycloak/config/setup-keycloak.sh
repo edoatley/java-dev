@@ -49,12 +49,20 @@ create_user() {
 }
 
 # Main script execution
+echo "START Realm and test users creation."
 admin_token=$(get_admin_token)
 realm_name="myrealm"
 create_realm "$admin_token" "$realm_name"
+echo "Realm $realm_name created."
 
 # Create test users
 create_user "$admin_token" "$realm_name" "testuser1" "password1"
+echo "User testuser1 created."
 create_user "$admin_token" "$realm_name" "testuser2" "password2"
+echo "User testuser2 created."
 
-echo "Realm and test users created successfully."
+echo "END   Realm and test users created successfully."
+
+# {"error":"Unable to find matching target resource method","error_description":"For more on this error consult the server log at the debug level."}Realm myrealm created.
+# {"error":"Unable to find matching target resource method","error_description":"For more on this error consult the server log at the debug level."}User testuser1 created.
+# {"error":"Unable to find matching target resource method","error_description":"For more on this error consult the server log at the debug level."}User testuser2 created.
