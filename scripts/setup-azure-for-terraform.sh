@@ -53,3 +53,9 @@ az role assignment create \
     --role "Contributor" \
     --assignee "$PRINCIPAL_ID" \
     --scope "/subscriptions/${SUBSCRIPTION_ID}"
+
+STORAGE_ACCOUNT_ID=$(az storage account show --name "$STORAGE_ACCOUNT" --resource-group "$RESOURCE_GROUP" --query "id" --output tsv)
+az role assignment create \
+    --role "Storage Blob Data Contributor" \
+    --assignee "$PRINCIPAL_ID" \
+    --scope "${STORAGE_ACCOUNT_ID}" 
