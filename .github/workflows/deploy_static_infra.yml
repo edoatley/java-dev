@@ -13,12 +13,15 @@ jobs:
   static-infra:
     name: Static Infrastructure
     runs-on: ubuntu-latest
+    environment: nonprod
     env:
-      ARM_USE_OIDC: true
+      
+      ARM_USE_AZUREAD: true
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
       ARM_CLIENT_ID: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}   
       TF_INSTANCE: ${{ github.ref_name }}
+
     steps:
       - name: Checkout repo code
         uses: actions/checkout@v4
@@ -29,7 +32,7 @@ jobs:
           client-id: ${{ env.ARM_CLIENT_ID }}
           tenant-id: ${{ env.ARM_TENANT_ID }}
           subscription-id: ${{ env.ARM_SUBSCRIPTION_ID }}
-          
+
       - name: Terraform Apply
         uses: ./.github/actions/azure-terraform
         with:
@@ -38,6 +41,6 @@ jobs:
           workingDir: iac/azure/static
           tfBackend: ${{  env.TF_INSTANCE }}/static
           tfParams: -var-file=instance/${{ env.TF_INSTANCE }}.tfvars 
-          backendResourceGroup: ${{ secrets.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
-          backendStorageAccount: ${{ secrets.AZURE_TERRAFORM_STORAGE_ACC }}   
+          backendResourceGroup: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
+          backendStorageAccount: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC }}   
           backendContainer: ${{ github.repository }}
