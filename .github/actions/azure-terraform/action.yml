@@ -1,0 +1,62 @@
+name: Azure Terraform Action
+description: Builds the infrastructure needed for GH runner
+inputs:
+  instance:
+    description: Specified deployment instance
+    required: true
+  tfAction:
+    description: Apply or destroy
+    required: true
+  workingDir:
+    description: Working directory
+    required: true
+  tfBackend:
+    description: Location for tf state files
+    required: true
+  tfParams:
+    description: Terraform parameters like -var-file=instance/dev.tfvars
+  backendResourceGroup:
+    description: Backend resource group
+    required: true
+  backendStorageAccount:
+    description: Backend storage account
+    required: true
+  backendContainer:
+    description: Backend storage account container
+    required: true
+
+runs:
+  using: composite
+  steps:
+  - uses: hashicorp/setup-terraform@v3
+
+  - name: Terraform Init
+    shell: bash
+    working-directory: ${{ inputs.workingDir }}
+    run: |
+      terraform init \
+        -input=false \
+        -backend-config=resource_group_name=${{ inputs.backendResourceGroup }} \
+        -backend-config=storage_account_name=${{ inputs.backendStorageAccount }} \
+        -backend-config=container_name=${{ inputs.backendContainer }} \
+        -backend-config=key=${{ inputs.tfBackend }}.tfstate
+
+  - name: Terraform Plan
+    shell: bash
+    id: plan
+    working-directory: ${{ inputs.workingDir }}
+    if: ${{ inputs.tfAction != 'Destroy' }}
+    run: terraform plan -input=false -out=tfplan ${{inputs.tfParams}}
+
+  - name: Terraform Apply
+    shell: bash
+    working-directory: ${{ inputs.workingDir }}
+    if: ${{ inputs.tfAction == 'Apply' }}
+    run: terraform apply tfplan
+
+  - name: Terraform Destroy
+    shell: bash
+    working-directory: ${{ inputs.workingDir }}
+    if: ${{ inputs.tfAction == 'Destroy' }}
+    run: terraform apply -auto-approve -input=false --destroy ${{inputs.tfParams}}
+
