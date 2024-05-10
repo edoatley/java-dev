@@ -41,7 +41,7 @@ az identity federated-credential create \
     --name "${MANAGED_ID_NAME}-fid" \
     --identity-name "${MANAGED_ID_NAME}" \
     --resource-group "${RESOURCE_GROUP}" \
-    --issuer 'https://aks.azure.com/issuerGUID' \
+    --issuer 'https://token.actions.githubusercontent.com' \
     --subject 'repo:edoatley/java-dev:environment:nonprod' \
     --audiences 'api://AzureADTokenExchange'
 
