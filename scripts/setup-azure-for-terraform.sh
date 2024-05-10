@@ -5,6 +5,7 @@ RESOURCE_GROUP=${1:-"rg-java-dev-tfstate"}
 LOCATION=${2:-"uksouth"}
 STORAGE_ACCOUNT=${3:-"sajavadevedo6cy6"}
 MANAGED_ID_NAME=${4:-"uai-java-dev-terraform"}
+SA_CONTAINER="edoatley-java-dev"
 
 echo "Checking if resource group ${RESOURCE_GROUP} exists..."
 RGEXISTS=$(az group exists --name "$RESOURCE_GROUP")
@@ -25,7 +26,8 @@ echo "STORAGE_ACCOUNT=${STORAGE_ACCOUNT}"
 if [ -z "$SAEXISTS" ]
 then
         echo "Storage account does not exist. Creating..."
-        az storage account create --name "$STORAGE_ACCOUNT" --resource-group "$RESOURCE_GROUP" --location "$LOCATION" --sku Standard_LRS
+        az storage account create --name "${STORAGE_ACCOUNT}" --resource-group "$RESOURCE_GROUP" --location "$LOCATION" --sku Standard_LRS
+        az storage container create --name "${SA_CONTAINER} --account-name "$STORAGE_ACCOUNT" --account-key "$(az storage account keys list --resource-group "$RESOURCE_GROUP" --account-name "$STORAGE_ACCOUNT" --query "[0].value" -o tsv)"
 else
         echo "Storage account already ${STORAGE_ACCOUNT} exists."
 fi

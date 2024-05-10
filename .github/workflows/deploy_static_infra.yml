@@ -36,4 +36,4 @@ jobs:
           tfParams: -var-file=instance/${{ env.TF_INSTANCE }}.tfvars 
           backendResourceGroup: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
           backendStorageAccount: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC }}   
-          backendContainer: ${{ github.repository }}
+          backendContainer: "${{ github.repository_owner }}-${GITHUB_REPOSITORY#*/}"
