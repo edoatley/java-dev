@@ -89,14 +89,12 @@ runs:
       commenter_input: ${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}
       commenter_exitcode: ${{ steps.validate.outputs.exitcode }}
 
-  - name: TFLint - Setup
-    id: tflint
-    uses: terraform-linters/setup-tflint@v3
-    with:
-      tflint_wrapper_enabled: true
-
+  - uses: terraform-linters/setup-tflint@v4
   - name: TFLint - Run
     shell: bash
+    env:
+      # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+      GITHUB_TOKEN: ${{ github.token }}
     working-directory: ${{ inputs.workingDir }}
     run: |
       tflint --version
