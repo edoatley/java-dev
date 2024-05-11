@@ -35,8 +35,8 @@ runs:
 
   - name: Terraform Format
     id: fmt
-    run: |
-      terraform fmt -check -recursive -diff
+    shell: bash
+    run: terraform fmt -check -recursive -diff
     continue-on-error: true
 
   - name: Post Format Comment
@@ -48,8 +48,8 @@ runs:
       commenter_exitcode: ${{ steps.fmt.outputs.exitcode }}
 
   - name: Terraform Init
-    shell: bash
     id: init
+    shell: bash
     working-directory: ${{ inputs.workingDir }}
     run: |
       terraform init \
@@ -70,6 +70,7 @@ runs:
 
   - name: Terraform Validate
     id: validate
+    shell: bash
     run: terraform validate
 
   - name: Post TF Validate Comment
@@ -87,6 +88,7 @@ runs:
       tflint_wrapper_enabled: true
 
   - name: TFLint - Run
+    shell: bash
     run: |
       tflint --version
       tflint --init
