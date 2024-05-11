@@ -61,8 +61,8 @@ variable "nsg_name" {
 
 variable "subnets" {
   type = map(object({
-    name = string
-    cidr = string
+    name             = string
+    address_prefixes = list(string)
   }))
   description = "The subnets to create in the virtual network"
 }

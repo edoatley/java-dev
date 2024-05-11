@@ -5,12 +5,12 @@ acr_sku                           = "Basic"
 acr_admin_enabled                 = false
 acr_public_network_access_enabled = true
 vnet_name                         = "vnet-java-dev-azure-iac"
-vnet_address_space                = "10.10.0.0/16"
+vnet_address_space                = ["10.10.0.0/16"]
 nsg_name                          = "nsg-java-dev-azure-iac"
 subnets = {
   default = {
-    name = "snet-default"
-    cidr = "10.10.0.0/24"
+    name             = "snet-default"
+    address_prefixes = ["10.10.0.0/24"]
   }
 }
 nsg_rules = {
