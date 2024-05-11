@@ -4,6 +4,10 @@ inputs:
   instance:
     description: Specified deployment instance
     required: true
+  tfVersion:
+    description: Version of terraform to use
+    required: true
+    default: "1.5.7"
   tfAction:
     description: Apply or destroy
     required: true
@@ -29,6 +33,8 @@ runs:
   using: composite
   steps:
   - uses: hashicorp/setup-terraform@v3
+    with:
+      terraform_version: ${{ inputs.tfVersion }}
 
   - name: Terraform Init
     shell: bash
@@ -40,6 +46,9 @@ runs:
         -backend-config=storage_account_name=${{ inputs.backendStorageAccount }} \
         -backend-config=container_name=${{ inputs.backendContainer }} \
         -backend-config=key=${{ inputs.tfBackend }}.tfstate
+
+  - name: Terraform Validate
+    run: terraform validate
 
   - name: Terraform Plan
     shell: bash

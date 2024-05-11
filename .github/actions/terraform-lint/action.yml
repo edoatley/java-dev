@@ -1,0 +1,116 @@
+name: Azure Terraform Linting Action
+description: Lints terraform code and updates a PR
+inputs:
+  instance:
+    description: Specified deployment instance
+    required: true
+  tfVersion:
+    description: Version of terraform to use
+    required: true
+    default: "1.5.7"
+  workingDir:
+    description: Working directory
+    required: true
+  tfBackend:
+    description: Location for tf state files
+    required: true
+  tfParams:
+    description: Terraform parameters like -var-file=instance/dev.tfvars
+  backendResourceGroup:
+    description: Backend resource group
+    required: true
+  backendStorageAccount:
+    description: Backend storage account
+    required: true
+  backendContainer:
+    description: Backend storage account container
+    required: true
+
+runs:
+  using: composite
+  steps:
+  - uses: hashicorp/setup-terraform@v3
+    with:
+      terraform_version: ${{ inputs.tfVersion }}
+
+  - name: Terraform Format
+    id: fmt
+    run: |
+      terraform fmt -check -recursive -diff
+    continue-on-error: true
+
+  - name: Post Format Comment
+    if: ${{ always() && (steps.fmt.outcome == 'success' || steps.fmt.outcome == 'failure') }}
+    uses: GetTerminus/terraform-pr-commenter@v3
+    with:
+      commenter_type: fmt
+      commenter_input: ${{ format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr) }}
+      commenter_exitcode: ${{ steps.fmt.outputs.exitcode }}
+
+  - name: Terraform Init
+    shell: bash
+    id: init
+    working-directory: ${{ inputs.workingDir }}
+    run: |
+      terraform init \
+        -input=false \
+        -lock=false  \
+        -backend-config=resource_group_name=${{ inputs.backendResourceGroup }} \
+        -backend-config=storage_account_name=${{ inputs.backendStorageAccount }} \
+        -backend-config=container_name=${{ inputs.backendContainer }} \
+        -backend-config=key=${{ inputs.tfBackend }}.tfstate
+
+  - name: Post Init Comment
+    if: ${{ always() && (steps.init.outcome == 'success' || steps.init.outcome == 'failure') }}
+    uses: GetTerminus/terraform-pr-commenter@v3
+    with:
+      commenter_type: init
+      commenter_input: ${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}
+      commenter_exitcode: ${{ steps.init.outputs.exitcode }}
+
+  - name: Terraform Validate
+    id: validate
+    run: terraform validate
+
+  - name: Post TF Validate Comment
+    if: ${{ always() && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure') }}
+    uses: GetTerminus/terraform-pr-commenter@v3
+    with:
+      commenter_type: validate
+      commenter_input: ${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}
+      commenter_exitcode: ${{ steps.validate.outputs.exitcode }}
+
+  - name: TFLint - Setup
+    id: tflint
+    uses: terraform-linters/setup-tflint@v3
+    with:
+      tflint_wrapper_enabled: true
+
+  - name: TFLint - Run
+    run: |
+      tflint --version
+      tflint --init
+      tflint
+
+  - name: Post TFLint Comment
+    if: ${{ always() && (steps.tflint.outcome == 'success' || steps.tflint.outcome == 'failure') }}
+    uses: GetTerminus/terraform-pr-commenter@dpr-update-commenter
+    with:
+      commenter_type: tflint
+      commenter_input: ${{ format('{0}{1}', steps.tflint.outputs.stdout, steps.tflint.outputs.stderr) }}
+      commenter_exitcode: ${{ steps.tflint.outputs.exitcode }}
+
+  - name: Terraform Plan
+    shell: bash
+    id: plan
+    working-directory: ${{ inputs.workingDir }}
+    run: terraform plan -input=false -out=tfplan ${{inputs.tfParams}}
+
+  - name: Post Plan Comment
+    uses: GetTerminus/terraform-pr-commenter@v3
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    with:
+      commenter_type: plan
+      commenter_plan_path: tf_plan.txt
+      commenter_exitcode: ${{ steps.plan.outputs.exit }}
