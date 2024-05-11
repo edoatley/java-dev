@@ -28,8 +28,6 @@ inputs:
 
 runs:
   using: composite
-  env:
-    GITHUB_TOKEN: ${{ github.token }}
   steps:
   - uses: hashicorp/setup-terraform@v3
     with:
@@ -45,6 +43,8 @@ runs:
   - name: Post Format Comment
     if: ${{ always() && (steps.fmt.outcome == 'success' || steps.fmt.outcome == 'failure') }}
     uses: GetTerminus/terraform-pr-commenter@v3
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: fmt
       commenter_input: ${{ format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr) }}
@@ -66,6 +66,8 @@ runs:
   - name: Post Init Comment
     if: ${{ always() && (steps.init.outcome == 'success' || steps.init.outcome == 'failure') }}
     uses: GetTerminus/terraform-pr-commenter@v3
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: init
       commenter_input: ${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}
@@ -80,6 +82,8 @@ runs:
   - name: Post TF Validate Comment
     if: ${{ always() && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure') }}
     uses: GetTerminus/terraform-pr-commenter@v3
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: validate
       commenter_input: ${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}
@@ -102,6 +106,8 @@ runs:
   - name: Post TFLint Comment
     if: ${{ always() && (steps.tflint.outcome == 'success' || steps.tflint.outcome == 'failure') }}
     uses: GetTerminus/terraform-pr-commenter@dpr-update-commenter
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: tflint
       commenter_input: ${{ format('{0}{1}', steps.tflint.outputs.stdout, steps.tflint.outputs.stderr) }}
@@ -115,6 +121,8 @@ runs:
 
   - name: Post Plan Comment
     uses: GetTerminus/terraform-pr-commenter@v3
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: plan
       commenter_plan_path: tf_plan.txt
