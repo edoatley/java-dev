@@ -111,7 +111,7 @@ runs:
   - name: Post Plan Comment
     uses: GetTerminus/terraform-pr-commenter@v3
     env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: plan
       commenter_plan_path: tf_plan.txt
