@@ -115,7 +115,7 @@ runs:
     shell: bash
     id: plan
     working-directory: ${{ inputs.workingDir }}
-    run: terraform plan -input=false -out=tfplan ${{inputs.tfParams}}
+    run: terraform plan -lock=false -input=false ${{inputs.tfParams}} |& tee tf_plan.txt
 
   - name: Post Plan Comment
     uses: GetTerminus/terraform-pr-commenter@v3
@@ -123,5 +123,6 @@ runs:
       GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: plan
-      commenter_plan_path: tf_plan.txt
+      commenter_plan_path: ${{ inputs.workingDir }}/tf_plan.txt
+      # commenter_plan_path: tf_plan.txt
       commenter_exitcode: ${{ steps.plan.outputs.exitcode }}
