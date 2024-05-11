@@ -28,6 +28,8 @@ inputs:
 
 runs:
   using: composite
+  env:
+    GITHUB_TOKEN: ${{ github.token }}
   steps:
   - uses: hashicorp/setup-terraform@v3
     with:
@@ -36,6 +38,7 @@ runs:
   - name: Terraform Format
     id: fmt
     shell: bash
+    working-directory: ${{ inputs.workingDir }}
     run: terraform fmt -check -recursive -diff
     continue-on-error: true
 
@@ -71,6 +74,7 @@ runs:
   - name: Terraform Validate
     id: validate
     shell: bash
+    working-directory: ${{ inputs.workingDir }}
     run: terraform validate
 
   - name: Post TF Validate Comment
@@ -89,6 +93,7 @@ runs:
 
   - name: TFLint - Run
     shell: bash
+    working-directory: ${{ inputs.workingDir }}
     run: |
       tflint --version
       tflint --init
@@ -110,8 +115,6 @@ runs:
 
   - name: Post Plan Comment
     uses: GetTerminus/terraform-pr-commenter@v3
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: plan
       commenter_plan_path: tf_plan.txt
