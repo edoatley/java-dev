@@ -33,30 +33,23 @@ runs:
     with:
       terraform_version: ${{ inputs.tfVersion }}
 
-  # - name: Terraform Format
-  #   id: fmt
-  #   shell: bash
-  #   working-directory: ${{ inputs.workingDir }}
-  #   run: terraform fmt -check -recursive -diff
-  #   continue-on-error: true
+  - name: Terraform Format
+    id: fmt
+    shell: bash
+    working-directory: ${{ inputs.workingDir }}
+    run: terraform fmt -check -recursive -diff
+    continue-on-error: true
 
-  # - name: Post Format Comment
-  #   if: ${{ always() && (steps.fmt.outcome == 'success' || steps.fmt.outcome == 'failure') }}
-  #   uses: GetTerminus/terraform-pr-commenter@v3
-  #   env:
-  #     GITHUB_TOKEN: ${{ github.token }}
-  #   with:
-  #     commenter_type: fmt
-  #     commenter_input: ${{ format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr) }}
-  #     commenter_exitcode: ${{ steps.fmt.outputs.exitcode }}
-
-  #   ## TEMP DEBUGGING
-  - name: Check Token exists
+  - name: Post Format Comment
+    if: ${{ always() && (steps.fmt.outcome == 'success' || steps.fmt.outcome == 'failure') }}
+    uses: GetTerminus/terraform-pr-commenter@v3
     env:
       GITHUB_TOKEN: ${{ github.token }}
-    shell: bash
-    run: echo $GITHUB_TOKEN | wc -c
-    ## TEMP DEBUGGING
+    with:
+      commenter_type: fmt
+      terraform_version: ${{ inputs.tfVersion }}
+      commenter_input: ${{ format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr) }}
+      commenter_exitcode: ${{ steps.fmt.outputs.exitcode }}
 
   - name: Terraform Init
     id: init
@@ -78,59 +71,62 @@ runs:
       GITHUB_TOKEN: ${{ github.token }}
     with:
       commenter_type: init
+      terraform_version: ${{ inputs.tfVersion }}
       commenter_input: ${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}
       commenter_exitcode: ${{ steps.init.outputs.exitcode }}
 
-  # - name: Terraform Validate
-  #   id: validate
-  #   shell: bash
-  #   working-directory: ${{ inputs.workingDir }}
-  #   run: terraform validate
+  - name: Terraform Validate
+    id: validate
+    shell: bash
+    working-directory: ${{ inputs.workingDir }}
+    run: terraform validate
 
-  # - name: Post TF Validate Comment
-  #   if: ${{ always() && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure') }}
-  #   uses: GetTerminus/terraform-pr-commenter@v3
-  #   env:
-  #     GITHUB_TOKEN: ${{ github.token }}
-  #   with:
-  #     commenter_type: validate
-  #     commenter_input: ${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}
-  #     commenter_exitcode: ${{ steps.validate.outputs.exitcode }}
+  - name: Post TF Validate Comment
+    if: ${{ always() && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure') }}
+    uses: GetTerminus/terraform-pr-commenter@v3
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    with:
+      commenter_type: validate
+      terraform_version: ${{ inputs.tfVersion }}
+      commenter_input: ${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}
+      commenter_exitcode: ${{ steps.validate.outputs.exitcode }}
 
-  # - uses: terraform-linters/setup-tflint@v4
-  # - name: TFLint - Run
-  #   shell: bash
-  #   env:
-  #     # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
-  #     GITHUB_TOKEN: ${{ github.token }}
-  #   working-directory: ${{ inputs.workingDir }}
-  #   run: |
-  #     tflint --version
-  #     tflint --init
-  #     tflint
+  - uses: terraform-linters/setup-tflint@v4
+  - name: TFLint - Run
+    shell: bash
+    env:
+      # https://github.com/terraform-linters/tflint/blob/master/docs/user-guide/plugins.md#avoiding-rate-limiting
+      GITHUB_TOKEN: ${{ github.token }}
+    working-directory: ${{ inputs.workingDir }}
+    run: |
+      tflint --version
+      tflint --init
+      tflint
 
-  # - name: Post TFLint Comment
-  #   if: ${{ always() && (steps.tflint.outcome == 'success' || steps.tflint.outcome == 'failure') }}
-  #   uses: GetTerminus/terraform-pr-commenter@dpr-update-commenter
-  #   env:
-  #     GITHUB_TOKEN: ${{ github.token }}
-  #   with:
-  #     commenter_type: tflint
-  #     commenter_input: ${{ format('{0}{1}', steps.tflint.outputs.stdout, steps.tflint.outputs.stderr) }}
-  #     commenter_exitcode: ${{ steps.tflint.outputs.exitcode }}
+  - name: Post TFLint Comment
+    if: ${{ always() && (steps.tflint.outcome == 'success' || steps.tflint.outcome == 'failure') }}
+    uses: GetTerminus/terraform-pr-commenter@dpr-update-commenter
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    with:
+      commenter_type: tflint
+      terraform_version: ${{ inputs.tfVersion }}
+      commenter_input: ${{ format('{0}{1}', steps.tflint.outputs.stdout, steps.tflint.outputs.stderr) }}
+      commenter_exitcode: ${{ steps.tflint.outputs.exitcode }}
 
-  # - name: Terraform Plan
-  #   shell: bash
-  #   id: plan
-  #   working-directory: ${{ inputs.workingDir }}
-  #   run: terraform plan -lock=false -input=false ${{inputs.tfParams}} |& tee tf_plan.txt
+  - name: Terraform Plan
+    shell: bash
+    id: plan
+    working-directory: ${{ inputs.workingDir }}
+    run: terraform plan -lock=false -input=false ${{inputs.tfParams}} |& tee tf_plan.txt
 
-  # - name: Post Plan Comment
-  #   uses: GetTerminus/terraform-pr-commenter@v3
-  #   env:
-  #     GITHUB_TOKEN: ${{ github.token }}
-  #   with:
-  #     commenter_type: plan
-  #     commenter_plan_path: ${{ inputs.workingDir }}/tf_plan.txt
-  #     # commenter_plan_path: tf_plan.txt
-  #     commenter_exitcode: ${{ steps.plan.outputs.exitcode }}
+  - name: Post Plan Comment
+    uses: GetTerminus/terraform-pr-commenter@v3
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    with:
+      commenter_type: plan
+      terraform_version: ${{ inputs.tfVersion }}
+      commenter_plan_path: ${{ inputs.workingDir }}/tf_plan.txt
+      commenter_exitcode: ${{ steps.plan.outputs.exitcode }}
