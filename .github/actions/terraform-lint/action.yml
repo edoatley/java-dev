@@ -117,6 +117,17 @@ runs:
     working-directory: ${{ inputs.workingDir }}
     run: terraform plan -lock=false -input=false ${{inputs.tfParams}} |& tee tf_plan.txt
 
+    ## TEMP DEBUGGING
+  - name: Check Token exists
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    shell: bash
+    run: echo $$GITHUB_TOKEN | wc -c
+  - name: Check Plan file exists
+    shell: bash
+    run: cat ${{ inputs.workingDir }}/tf_plan.txt
+    ## TEMP DEBUGGING
+
   - name: Post Plan Comment
     uses: GetTerminus/terraform-pr-commenter@v3
     env:
