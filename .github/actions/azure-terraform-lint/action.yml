@@ -127,7 +127,6 @@ runs:
     uses: GetTerminus/terraform-pr-commenter@v3
     env:
       GITHUB_TOKEN: ${{ github.token }}
-      COMMENTER_DEBUG: true
     with:
       commenter_type: plan
       terraform_version: ${{ inputs.tfVersion }}
