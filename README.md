@@ -14,7 +14,11 @@ Investigating neat ways to do java cloud native dev
   - [Build a basic API (Jetty/Jersey) and basic tests](#build-a-basic-api-jettyjersey-and-basic-tests)
   - [Consolidate on JUnit5](#consolidate-on-junit5)
   - [Enable TLS](#enable-tls)
-  - [Auth0 authentication](#auth0-authentication)
+  - [Azure Terraform Static Resources](#azure-terraform-static-resources)
+    - [Authentication setup (Azure)](#authentication-setup-azure)
+    - [Authentication setup (Github)](#authentication-setup-github)
+    - [Authentication setup (Terraform)](#authentication-setup-terraform)
+    - [Deploy resources](#deploy-resources)
 
 ## Plan
 
@@ -584,4 +588,79 @@ The factory will create the IdP based on the `config.properties`
 
 The next step is to look at a real IdP for AuthN
 
-## Auth0 authentication
+## Azure Terraform Static Resources
+
+There are various recources that we need to be present regardless of the branch such as:
+
+- terraform state storage account and resource group
+- credentials for GH actions to connect to Azure
+- Basic Azure resources branches rely on: Container Registry, VNET etc
+
+To create the first two we can use a script [setup-azure-for-terraform.sh](scripts/setup-azure-for-terraform.sh) to do most of the work
+and then we use the terraform code in [iac/azure/static](iac/azure/static).
+
+### Authentication setup (Azure)
+
+The script [setup-azure-for-terraform.sh](scripts/setup-azure-for-terraform.sh) sets up the following:
+
+![Base Resources](images/base-resources.png)
+
+The storage account has the `edoatley-java-dev` created in it but the key resource is the **User Assigned Managed Identity**.
+This has the following permissions:
+
+![User Assigned Identity Permissions](images/uai-permissions.png)
+
+and if we click through to the federated identity we see:
+
+![UAI Federated Identity](images/uai-federated-identity.png)
+
+### Authentication setup (Github)
+
+Within Github we create the Environment nonprod:
+
+![Non-prod Environment](images/non-prod-env-github.png)
+
+`AZURE_TERRAFORM_CLIENT_ID` is configured to match the user assigned identity
+
+We can then set up these secrets:
+
+![GitHub Secrets](images/github-secrets.png)
+
+and these variables
+
+![GitHub Variables](images/github-variables.png)
+
+**Note** we could consider moving some of these to the environment rather than repository level
+
+### Authentication setup (Terraform)
+
+Within the workflow [deploy_static_infra.yml](.github/workflows/deploy_static_infra.yml) we now set the following:
+
+```yaml
+permissions:
+  id-token: write
+  contents: read
+jobs:
+  static-infra:
+    name: Static Infrastructure
+    runs-on: ubuntu-latest
+    environment: nonprod
+    env:
+      ARM_USE_OIDC: true
+      ARM_USE_AZUREAD: true
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}   
+      TF_INSTANCE: ${{ github.ref_name }}
+```
+
+Note the terraform azurerm provider docs not the following for the two flags:
+
+> use_azuread_auth - (Optional) Whether Azure Active Directory Authentication should be used to access the Blob Storage Account. 
+> This can also be sourced from the ARM_USE_AZUREAD environment variable.
+> use_oidc - (Optional) Should OIDC authentication be used? 
+> This can also be sourced from the ARM_USE_OIDC environment variable.
+
+### Deploy resources
+
+We should now be able to run the terraform action and deploy the resources with GitHub generating a token that is accepted as the ability to act as the user assigned identity due to the OIDC federation we created.

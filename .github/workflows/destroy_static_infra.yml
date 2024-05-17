@@ -1,0 +1,41 @@
+name: Destroy Static Azure infrastructure
+on:
+  workflow_dispatch: 
+    inputs:
+      instance:
+        type: string
+        description: 'The instance name to destroy'
+        required: true
+        
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  static-infra:
+    name: Static Infrastructure
+    runs-on: ubuntu-latest
+    environment: nonprod
+    env:
+      ARM_USE_OIDC: true
+      ARM_USE_AZUREAD: true
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}   
+      TF_INSTANCE: ${{ inputs.instance }}
+
+    steps:
+      - name: Checkout repo code
+        uses: actions/checkout@v4
+
+      - name: Terraform Apply
+        uses: ./.github/actions/azure-terraform
+        with:
+          instance: ${{ inputs.instance }}
+          tfAction: Destroy
+          workingDir: iac/azure/static
+          tfBackend: ${{ inputs.instance }}/static
+          tfParams: -var-file=instance/${{ inputs.instance }}.tfvars 
+          backendResourceGroup: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
+          backendStorageAccount: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC }}   
+          backendContainer: "${{ github.repository_owner }}-${GITHUB_REPOSITORY#*/}"
