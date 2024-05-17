@@ -664,3 +664,13 @@ Note the terraform azurerm provider docs not the following for the two flags:
 ### Deploy resources
 
 We should now be able to run the terraform action and deploy the resources with GitHub generating a token that is accepted as the ability to act as the user assigned identity due to the OIDC federation we created.
+
+## Feature branches
+
+The idea here is that we add the capability to respond to a `feature/*` branch by:
+
+- pushing the image to the Azure container registry
+- deploying the app in a 'feature' environment
+- cleaning up the resources when the feature branch is deleted
+
+Before doing this need to have a think through the events and which workflows target which branches

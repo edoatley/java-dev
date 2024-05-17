@@ -76,13 +76,14 @@ jobs:
   container-image-scan:
     needs: docker-build
     name: Scan docker image
-    uses: ./.github/workflows/container_image_scan.yml
+    uses: ./.github/actions/container-image-scan
     secrets: inherit
     permissions:
       contents: read
       security-events: write
     with:
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
+      registry: ghcr.io
   
   sca:
     runs-on: ubuntu-latest
