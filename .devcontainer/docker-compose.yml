@@ -21,6 +21,7 @@ services:
 
     volumes:
       - ../..:/workspaces:cached
+      - ./direnv/config.toml:/root/.config/direnv/config.toml
 
     # Overrides default command so things don't shut down after the process ends.
     command: sleep infinity
