@@ -48,6 +48,7 @@ runs:
         -backend-config=key=${{ inputs.tfBackend }}.tfstate
 
   - name: Terraform Validate
+    shell: bash
     run: terraform validate
 
   - name: Terraform Plan
