@@ -64,8 +64,6 @@ jobs:
     runs-on: ubuntu-latest
     needs: docker-build
     steps:
-      - uses: actions/checkout@v4
-
       - name: Run Integration Tests
         uses: ./.github/actions/integration-tests
         with:
@@ -74,23 +72,23 @@ jobs:
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
 
   container-image-scan:
+    runs-on: ubuntu-latest
     needs: docker-build
     name: Scan docker image
-    uses: ./.github/actions/container-image-scan
-    secrets: inherit
     permissions:
       contents: read
       security-events: write
-    with:
-      image-tag: ${{ needs.docker-build.outputs.image-tag }}
-      registry: ghcr.io
-  
+    steps:
+      - name: Run Container Image Scan
+        uses: ./.github/actions/container-image-scan
+        with:
+          image-tag: ${{ needs.docker-build.outputs.image-tag }}
+          registry: ghcr.io
+
   sca:
     runs-on: ubuntu-latest
     needs: docker-build
     steps:
-      - uses: actions/checkout@v4
-      
       - name: Run Software Composition Analysis
         uses: ./.github/actions/sca
         with:
@@ -99,20 +97,22 @@ jobs:
 
   release-main:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    name: Release main
+    runs-on: ubuntu-latest
     needs: [docker-build, sca, container-image-scan]
-    uses: ./.github/workflows/main.yml
-    secrets: inherit
-    with:
-      image-name: ${{ env.IMAGE_NAME }}
-      image-tag: ${{ needs.docker-build.outputs.image-tag }}
+    steps:
+      - name: Release main
+        uses: ./.github/workflows/main.yml
+        with:
+          image-name: ${{ env.IMAGE_NAME }}
+          image-tag: ${{ needs.docker-build.outputs.image-tag }}
 
   feature:
     if: github.ref == 'refs/heads/feature/*' && github.event_name == 'push'
+    runs-on: ubuntu-latest
     needs: [docker-build, sca, container-image-scan]
-    name: Release main
-    uses: ./.github/workflows/feature.yml
-    secrets: inherit
-    with:
-      image-name: ${{ env.IMAGE_NAME }}
-      image-tag: ${{ needs.docker-build.outputs.image-tag }}
+    steps:
+      - name: Release main
+        uses: ./.github/workflows/feature.yml
+        with:
+          image-name: ${{ env.IMAGE_NAME }}
+          image-tag: ${{ needs.docker-build.outputs.image-tag }}
