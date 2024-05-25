@@ -71,14 +71,14 @@ jobs:
       - name: Run Integration Tests
         uses: ./.github/actions/integration-tests
         with:
-          image: ${{ env.IMAGE_NAME }}
+          image-tag: ${{ needs.docker-build.outputs.image-tag }}
           java-version: ${{ env.JAVA_VERSION }}
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
 
   container-image-scan:
     runs-on: ubuntu-latest
     needs: docker-build
-    name: Scan docker image for vulnerabilities
+    name: Container image scan for vulnerabilities
     permissions:
       contents: read
       security-events: write
@@ -88,7 +88,6 @@ jobs:
         uses: ./.github/actions/container-image-scan
         with:
           image-tag: ${{ needs.docker-build.outputs.image-tag }}
-          registry: ghcr.io
 
   sca:
     runs-on: ubuntu-latest
