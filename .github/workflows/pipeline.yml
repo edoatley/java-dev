@@ -14,6 +14,7 @@ env:
 
 jobs:
   java-build:
+    name: Build and Test Java Code
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,6 +35,7 @@ jobs:
 
   docker-build:
     runs-on: ubuntu-latest
+    name: Docker Build and Push
     needs: java-build
     outputs:
       image-tag: ${{steps.docker.outputs.image-tag }}
@@ -62,6 +64,7 @@ jobs:
   # could consider only running for certain branches          
   integration-tests:
     runs-on: ubuntu-latest
+    name: Integration Test Image
     needs: docker-build
     steps:
       - uses: actions/checkout@v4 # need checkout before local action
@@ -75,7 +78,7 @@ jobs:
   container-image-scan:
     runs-on: ubuntu-latest
     needs: docker-build
-    name: Scan docker image
+    name: Scan docker image for vulnerabilities
     permissions:
       contents: read
       security-events: write
@@ -89,6 +92,7 @@ jobs:
 
   sca:
     runs-on: ubuntu-latest
+    name: Software Composition Analysis
     needs: docker-build
     steps:
       - uses: actions/checkout@v4 # need checkout before local action
@@ -101,6 +105,7 @@ jobs:
   release-main:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    name: Release main branch
     needs: [docker-build, sca, container-image-scan, integration-tests]
     steps:
       - uses: actions/checkout@v4 # need checkout before local action
@@ -113,6 +118,7 @@ jobs:
   feature:
     if: github.ref == 'refs/heads/feature/*' && github.event_name == 'push'
     runs-on: ubuntu-latest
+    name: Deploy Feature Branch
     needs: [docker-build, sca, container-image-scan, integration-tests]
     steps:
       - uses: actions/checkout@v4 # need checkout before local action
