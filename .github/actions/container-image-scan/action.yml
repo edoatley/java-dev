@@ -22,7 +22,10 @@ runs:
       username: ${{ github.actor }}
       password: ${{ github.token }}
 
-  - run: docker pull ${{ inputs.image-name }}
+  - name: Pull the image
+    shell: bash
+    run: |
+      docker pull ${{ inputs.image-name }}
 
   - name: Run Trivy vulnerability scanner
     uses: aquasecurity/trivy-action@0.19.0
