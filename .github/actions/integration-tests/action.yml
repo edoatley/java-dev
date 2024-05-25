@@ -2,11 +2,11 @@ name: Local Docker Build
 description: Locally build and tags the docker image
 
 inputs:
-  image:
+  image-tag:
     description: 'What to tag image with'
     required: true
   registry:
-    description: 'Container registry to push the image to'
+    description: 'Image Registry'
     required: true
     default: 'ghcr.io'
   context:
@@ -76,17 +76,8 @@ runs:
       username: ${{ github.actor }}
       password: ${{ github.token }}
 
-  - name: Build image name
-    id: extract_image
-    shell: bash
-    run: |
-      branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-      imagename="${{ inputs.registry }}/${{ inputs.image }}:$branch"
-      echo "name=$imagename"
-      echo "name=$imagename" >> $GITHUB_OUTPUT
-
   - name: Pull the image
-    run: docker pull ${{ steps.extract_image.outputs.name }}
+    run: docker pull ${{ inputs.image-tag }}
     shell: bash
 
   - name: Run App as a docker image and capture startup logs
@@ -100,7 +91,7 @@ runs:
         --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=${{env.DOCKER_KEYSTORE_PATH}},readonly \
         --env SERVER_KEYSTORE=${{env.DOCKER_KEYSTORE_PATH}} \
         --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
-        --name restapi ${{ steps.extract_image.outputs.name }})
+        --name restapi ${{ inputs.image-tag }})
       sleep 20
       docker logs -t $containerid
 
