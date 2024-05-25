@@ -96,3 +96,23 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           cache-encryption-key: ${{ secrets.GradleEncryptionKey }}
+
+  release-main:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    name: Release main
+    needs: [docker-build, sca, container-image-scan]
+    uses: ./.github/workflows/main.yml
+    secrets: inherit
+    with:
+      image-name: ${{ env.IMAGE_NAME }}
+      image-tag: ${{ needs.docker-build.outputs.image-tag }}
+
+  feature:
+    if: github.ref == 'refs/heads/feature/*' && github.event_name == 'push'
+    needs: [docker-build, sca, container-image-scan]
+    name: Release main
+    uses: ./.github/workflows/feature.yml
+    secrets: inherit
+    with:
+      image-name: ${{ env.IMAGE_NAME }}
+      image-tag: ${{ needs.docker-build.outputs.image-tag }}

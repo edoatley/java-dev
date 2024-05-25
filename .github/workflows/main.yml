@@ -1,0 +1,110 @@
+name: Main branch release
+on:
+  workflow_dispatch:
+    inputs:
+      image-name:
+        type: string
+        description: 'The name of the GHCR image just built'
+        required: true
+      image-tag:
+        type: string
+        description: 'The tag of the GHCR image just built'
+        required: true
+
+  workflow_call:
+    inputs:
+      image-name:
+        type: string
+        description: 'The name of the GHCR image just built'
+        required: true
+      image-tag:
+        type: string
+        description: 'The tag of the GHCR image just built'
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  static-infra:
+    name: Provision Static Azure infrastructure
+    runs-on: ubuntu-latest
+    environment: nonprod
+    env:
+      ARM_USE_OIDC: true
+      ARM_USE_AZUREAD: true
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}   
+      TF_INSTANCE: ${{ github.ref_name }}
+
+    steps:
+      - name: Checkout repo code
+        uses: actions/checkout@v4
+
+      - name: Terraform Apply
+        uses: ./.github/actions/azure-terraform
+        with:
+          instance: ${{  env.TF_INSTANCE }}
+          tfAction: Apply
+          workingDir: iac/azure/static
+          tfBackend: ${{  env.TF_INSTANCE }}/static
+          tfParams: -var-file=instance/${{ env.TF_INSTANCE }}.tfvars 
+          backendResourceGroup: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
+          backendStorageAccount: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC }}   
+          backendContainer: "${{ github.repository_owner }}-${GITHUB_REPOSITORY#*/}"
+
+  tag-release:
+    name: Tag the new release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      tag: ${{ steps.tagger.outputs.tag }}  
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: '0'
+
+    - name: Bump version and push tag
+      id: tagger
+      uses: anothrNick/github-tag-action@v1 # Don't use @master or @v1 unless you're happy to test the latest version
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # if you don't want to set write permissions use a PAT token
+        WITH_V: false      
+
+  push-to-acr:
+    runs-on: ubuntu-latest
+    needs: [static-infra, tag-release]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+          
+      - uses: azure/login@v2
+        with:
+            auth-type: IDENTITY
+            client-id: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}          
+            tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+            subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  
+      - name: Push to Azure Container Registry
+        working-directory: iac/azure/static/instance
+        run: |
+            # read the acr_name from main.tfvars
+            acr_name=$(grep 'acr_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+            
+            # Login
+            az acr login --name "${acr_name}"
+
+            # Build image names and echo them for debugging
+            ghcr_image_source="ghcr.io/${{ inputs.image-name }}:${{ inputs.image-tag }}"
+            echo "ghcr_image_source: $ghcr_image_source"
+            acr_target_image="${acr_name}.azurecr.io/${{ inputs.image-name }}:${{ needs.tag-release.outputs.tag }}"
+            echo "acr_target_image: $acr_target_image"
+
+            # pull the GHCR image and push to ACR
+            docker pull "${ghcr_image_source}"
+            docker tag "${ghcr_image_source}" "${acr_target_image}"
+            docker push "${acr_target_image}"

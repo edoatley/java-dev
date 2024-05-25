@@ -673,4 +673,16 @@ The idea here is that we add the capability to respond to a `feature/*` branch b
 - deploying the app in a 'feature' environment
 - cleaning up the resources when the feature branch is deleted
 
-Before doing this need to have a think through the events and which workflows target which branches
+Before doing this need to have a think through the events and which workflows target which branches:
+
+- all
+  - on push: build, push container to GHCR, container image scan
+
+- additionally for feature branches
+  - push to ACR
+  - deploy app to Azure
+  - on deletion remove from Azure
+
+- main
+  - handle 'release' tagging on ACR and github
+
