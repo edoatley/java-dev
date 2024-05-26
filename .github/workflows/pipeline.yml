@@ -9,7 +9,6 @@ permissions:
   security-events: write
 
 env:
-  IMAGE_NAME: ${{ github.repository }}
   JAVA_VERSION: "21"
 
 jobs:
@@ -54,7 +53,7 @@ jobs:
         uses: ./.github/actions/ghcr-docker-image  
         id: docker
         with:
-          image-name: ${{ env.IMAGE_NAME }}
+          image-name: ${{ vars.IMAGE_NAME }}
           jar-location: restapi-all.jar
           dockerfile: Dockerfile.distroless
           base-image: mcr.microsoft.com/openjdk/jdk:21-distroless
@@ -102,7 +101,7 @@ jobs:
     secrets: inherit
     uses: ./.github/workflows/main.yml
     with:
-      image-name: ${{ env.IMAGE_NAME }}
+      image-name: ${{ vars.IMAGE_NAME }}
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
 
   feature:
@@ -110,5 +109,5 @@ jobs:
     needs: [docker-build, software-composition-analysis, container-image-scan, integration-tests]
     uses: ./.github/workflows/feature.yml
     with:
-      image-name: ${{ env.IMAGE_NAME }}
+      image-name: ${{ vars.IMAGE_NAME }}  # Access IMAGE_NAME here
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
