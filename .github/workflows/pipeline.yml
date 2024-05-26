@@ -101,6 +101,7 @@ jobs:
     secrets: inherit
     permissions:
       contents: write # needed to tag the repo
+      id-token: write # needed to create use OIDC to Azure
     uses: ./.github/workflows/main.yml
     with:
       image-name: ${{ vars.IMAGE_NAME }}
@@ -110,6 +111,9 @@ jobs:
     if: startsWith(github.ref, 'refs/heads/feature/') && github.event_name == 'push'
     needs: [docker-build, software-composition-analysis, container-image-scan, integration-tests]
     uses: ./.github/workflows/feature.yml
+    secrets: inherit
+    permissions:
+      id-token: write # needed to create use OIDC to Azure
     with:
       image-name: ${{ vars.IMAGE_NAME }}  # Access IMAGE_NAME here
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
