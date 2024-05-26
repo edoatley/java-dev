@@ -118,4 +118,5 @@ jobs:
     with:
       image-name: ${{ vars.IMAGE_NAME }}  # Access IMAGE_NAME here
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
+      environment: nonprod
   
