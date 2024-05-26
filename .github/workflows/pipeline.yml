@@ -113,6 +113,7 @@ jobs:
     uses: ./.github/workflows/feature.yml
     secrets: inherit
     permissions:
+      contents: read # needed to read the repository
       id-token: write # needed to create use OIDC to Azure
     with:
       image-name: ${{ vars.IMAGE_NAME }}  # Access IMAGE_NAME here
