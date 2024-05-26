@@ -43,6 +43,7 @@ jobs:
           
       - name: Extract details
         id: details
+        working-directory: iac/azure/static/instance
         shell: bash
         run: |
           # read the acr_name & static_resource_group_name from main.tfvars
