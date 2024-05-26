@@ -10,6 +10,10 @@ on:
         type: string
         description: 'The tag of the GHCR image just built'
         required: true
+      environment: 
+        type: string
+        description: 'The environment to deploy to'
+        required: true  
 
   workflow_call:
     inputs:
@@ -21,6 +25,10 @@ on:
         type: string
         description: 'The tag of the GHCR image just built'
         required: true
+      environment: 
+        type: string
+        description: 'The environment to deploy to'
+        required: true
 
 permissions:
   id-token: write
@@ -30,6 +38,7 @@ permissions:
 jobs:
   process-image:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
     outputs:
       acr_name: ${{ steps.details.outputs.acr_name }}
       acr_image: ${{ steps.details.outputs.acr_image }}
@@ -54,7 +63,7 @@ jobs:
           
           # Extract GitHub details 
           echo "git_short_sha=$(git rev-parse --short HEAD)" | tee -a $GITHUB_OUTPUT
-          feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f3)
+          feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f4)
           echo "feature_branch_name=$feature_branch_name" | tee -a $GITHUB_OUTPUT
 
           # Build image names
@@ -82,7 +91,7 @@ jobs:
   feature-infra:
     name: Provision Feature Azure infrastructure
     runs-on: ubuntu-latest
-    environment: nonprod
+    environment: ${{ inputs.environment }}
     needs: process-image
     env:
       ARM_USE_OIDC: true
