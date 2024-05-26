@@ -76,7 +76,7 @@ jobs:
     needs: docker-build
     permissions:
       contents: read
-      security-events: write
+      security-events: write # needed to create security events
     steps:
       - uses: actions/checkout@v4 # need checkout before local action
       - name: Run Container Image Scan
@@ -99,6 +99,8 @@ jobs:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     needs: [docker-build, software-composition-analysis, container-image-scan, integration-tests]
     secrets: inherit
+    permissions:
+      contents: write # needed to tag the repo
     uses: ./.github/workflows/main.yml
     with:
       image-name: ${{ vars.IMAGE_NAME }}
@@ -111,3 +113,4 @@ jobs:
     with:
       image-name: ${{ vars.IMAGE_NAME }}  # Access IMAGE_NAME here
       image-tag: ${{ needs.docker-build.outputs.image-tag }}
+  
