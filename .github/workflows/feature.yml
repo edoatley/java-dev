@@ -26,8 +26,8 @@ permissions:
   id-token: write
   contents: read
 
-jobs:
 ## Push to ACR first so can deploy to Azure    
+jobs:
   process-image:
     runs-on: ubuntu-latest
     outputs:
@@ -46,12 +46,15 @@ jobs:
         shell: bash
         run: |
           # read the acr_name & static_resource_group_name from main.tfvars
-          echo "acr_name=$(grep 'acr_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"') | tee -a $GITHUB_OUTPUT
-          echo "static_resource_group_name=$(grep 'resource_group_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')" | tee -a $GITHUB_OUTPUT
+          acr_name=$(grep 'acr_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "acr_name=$acr_name" | tee -a $GITHUB_OUTPUT
+          static_resource_group_name=$(grep 'resource_group_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "static_resource_group_name=$static_resource_group_name" | tee -a $GITHUB_OUTPUT
           
           # Extract GitHub details 
           echo "git_short_sha=$(git rev-parse --short HEAD)" | tee -a $GITHUB_OUTPUT
-          echo "feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f3)" | tee -a $GITHUB_OUTPUT
+          feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f3)
+          echo "feature_branch_name=$feature_branch_name" | tee -a $GITHUB_OUTPUT
 
           # Build image names
           echo "ghcr_image_source="ghcr.io/${{ inputs.image-name }}:${{ inputs.image-tag }}" | tee -a $GITHUB_OUTPUT
