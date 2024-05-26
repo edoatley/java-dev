@@ -80,7 +80,7 @@ jobs:
         id: push-to-acr
         working-directory: iac/azure/static/instance
         run: |
-          az acr login --name $acr_name
+          az acr login --name "${{ steps.details.outputs.acr_name}}"
           
           # pull the GHCR image and push to ACR
           docker pull "${{ steps.details.outputs.ghcr_image_source}}"
