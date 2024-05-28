@@ -67,7 +67,7 @@ jobs:
 
           # replace ghcr.io with ${acr_name}.azurecr.io
           acr_image=$(echo "${{ inputs.image-tag }}" | sed "s/ghcr.io/${acr_name}.azurecr.io/g")
-          echo "acr_image="${acr_image}" | tee -a $GITHUB_OUTPUT
+          echo "acr_image=${acr_image}" | tee -a $GITHUB_OUTPUT
 
       - uses: azure/login@v2
         with:
