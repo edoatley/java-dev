@@ -42,7 +42,6 @@ jobs:
     outputs:
       acr_name: ${{ steps.details.outputs.acr_name }}
       acr_image: ${{ steps.details.outputs.acr_image }}
-      ghcr_image_source: ${{ steps.details.outputs.ghcr_image_source }}
       git_short_sha: ${{ steps.details.outputs.git_short_sha }}
       feature_branch_name: ${{ steps.details.outputs.feature_branch_name }}
     steps:
@@ -66,9 +65,9 @@ jobs:
           feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f4)
           echo "feature_branch_name=$feature_branch_name" | tee -a $GITHUB_OUTPUT
 
-          # Build image names
-          echo "ghcr_image_source="ghcr.io/${{ inputs.image-name }}:${{ inputs.image-tag }}" | tee -a $GITHUB_OUTPUT
-          echo "acr_image="${acr_name}.azurecr.io/${{ inputs.image-name }}:$feature_branch_name" | tee -a $GITHUB_OUTPUT
+          # replace ghcr.io with ${acr_name}.azurecr.io
+          acr_image=$(echo "${{ inputs.image-tag }}" | sed -i "s/ghcr.io/${acr_name}.azurecr.io/g")
+          echo "acr_image="${acr_image}" | tee -a $GITHUB_OUTPUT
 
       - uses: azure/login@v2
         with:
@@ -83,8 +82,8 @@ jobs:
           az acr login --name "${{ steps.details.outputs.acr_name}}"
           
           # pull the GHCR image and push to ACR
-          docker pull "${{ steps.details.outputs.ghcr_image_source}}"
-          docker tag "${{ steps.details.outputs.ghcr_image_source}}" "${{ steps.details.outputs.acr_image}}"
+          docker pull ${{ inputs.image-tag }}
+          docker tag ${{ inputs.image-tag }} "${{ steps.details.outputs.acr_image}}"
           docker push "${{ steps.details.outputs.acr_image}}"
 
   feature-infra:
