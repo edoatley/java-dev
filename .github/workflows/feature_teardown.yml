@@ -1,0 +1,52 @@
+name: Clear feature branch
+on:
+  delete:
+
+jobs:
+  deleted-feature:
+    if: startsWith(github.ref, 'refs/heads/feature/')
+    name: Deprovision Feature Azure infrastructure
+    runs-on: ubuntu-latest
+    environment: nonprod
+    steps:
+      - name: Checkout repo code
+        uses: actions/checkout@v4
+      
+      - name: Extract details
+        id: details
+        working-directory: iac/azure/static/instance
+        shell: bash
+        run: |
+          # read the acr_name & static_resource_group_name from main.tfvars
+          acr_name=$(grep 'acr_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "acr_name=$acr_name" | tee -a $GITHUB_OUTPUT
+          static_resource_group_name=$(grep 'resource_group_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "static_resource_group_name=$static_resource_group_name" | tee -a $GITHUB_OUTPUT
+          
+          # Extract GitHub details 
+          echo "git_short_sha=$(git rev-parse --short HEAD)" | tee -a $GITHUB_OUTPUT
+          feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f4)
+          echo "feature_branch_name=$feature_branch_name" | tee -a $GITHUB_OUTPUT
+
+      - name: Terraform Destroy
+        uses: ./.github/actions/azure-terraform
+        env:
+            ARM_USE_OIDC: true
+            ARM_USE_AZUREAD: true
+            ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+            ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+            ARM_CLIENT_ID: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}   
+            TF_VAR_branch_reference: ${{ steps.details.outputs.feature_branch_name }}
+            TF_VAR_git_short_sha: ${{ github.sha }}
+            TF_VAR_acr_name: ${{ steps.details.outputs.acr_name }}
+            TF_VAR_image_name: ${{ steps.details.outputs.acr_image }}
+            TF_VAR_static_resource_group_name: ${{ steps.details.outputs.static_resource_group_name }}
+        with:
+          instance: feaure
+          tfAction: Destroy
+          workingDir: iac/azure/feature
+          tfBackend: feature/${{ steps.details.outputs.feature_branch_name }}
+          tfParams: ''
+          backendResourceGroup: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
+          backendStorageAccount: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC }}   
+          backendContainer: "${{ github.repository_owner }}-${GITHUB_REPOSITORY#*/}"  
