@@ -44,6 +44,7 @@ jobs:
       acr_image: ${{ steps.details.outputs.acr_image }}
       git_short_sha: ${{ steps.details.outputs.git_short_sha }}
       feature_branch_name: ${{ steps.details.outputs.feature_branch_name }}
+      static_resource_group_name: ${{ steps.details.outputs.static_resource_group_name }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -101,6 +102,7 @@ jobs:
       TF_VAR_git_short_sha: ${{ github.sha }}
       TF_VAR_acr_name: ${{ needs.process-image.outputs.acr_name }}
       TF_VAR_image_name: ${{ needs.process-image.outputs.acr_image }}
+      TF_VAR_static_resource_group_name: ${{ needs.process-image.outputs.static_resource_group_name }}
     steps:
       - name: Checkout repo code
         uses: actions/checkout@v4
