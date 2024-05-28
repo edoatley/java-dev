@@ -110,7 +110,7 @@ jobs:
         with:
           instance: feaure
           tfAction: Apply
-          workingDir: iac/azure/static
+          workingDir: iac/azure/feature
           tfBackend: feature/${{ needs.process-image.outputs.feature_branch_name }}
           tfParams: ''
           backendResourceGroup: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
