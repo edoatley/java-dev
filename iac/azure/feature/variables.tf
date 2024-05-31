@@ -28,3 +28,20 @@ variable "static_resource_group_name" {
   type        = string
   description = "The RG containing static resources"
 }
+
+variable "vm_size" {
+  type        = string
+  description = "The size of the VM"
+  default     = "Standard_B2s"
+}
+
+variable "vm_admin_username" {
+  type        = string
+  description = "The VM admin username"
+  default     = "azureadmin"
+}
+
+variable "vm_ssh_public_key" {
+  type        = string
+  description = "The VM SSH public key"
+}

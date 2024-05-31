@@ -21,3 +21,37 @@ data "azurerm_container_registry" "this" {
   name                = var.acr_name
   resource_group_name = var.static_resource_group_name
 }
+
+resource "azurerm_linux_virtual_machine" "this" {
+  name                = module.naming.virtual_machine.name
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+  size                = var.vm_size
+  admin_username      = var.vm_admin_username
+  admin_ssh_key {
+    username   = var.vm_admin_username
+    public_key = var.vm_ssh_public_key
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "18.04-LTS"
+    version   = "latest"
+  }
+
+  network_interface_ids = [azurerm_network_interface.this.id]
+
+  tags = {
+    "latest-commit" = var.git_short_sha
+    "branch"        = var.branch_reference
+  }
+
+  user_data = file("${path.module}./scripts/user-data.sh")
+
+}
