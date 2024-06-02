@@ -29,6 +29,11 @@ variable "static_resource_group_name" {
   description = "The RG containing static resources"
 }
 
+variable "static_vnet_name" {
+  type        = string
+  description = "The RG containing static resources"
+}
+
 variable "vm_size" {
   type        = string
   description = "The size of the VM"
