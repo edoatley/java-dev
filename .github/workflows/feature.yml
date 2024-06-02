@@ -55,11 +55,13 @@ jobs:
         working-directory: iac/azure/static/instance
         shell: bash
         run: |
-          # read the acr_name & static_resource_group_name from main.tfvars
+          # read the acr_name, static_resource_group_name & static_vnet_name from main.tfvars
           acr_name=$(grep 'acr_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
           echo "acr_name=$acr_name" | tee -a $GITHUB_OUTPUT
           static_resource_group_name=$(grep 'resource_group_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
           echo "static_resource_group_name=$static_resource_group_name" | tee -a $GITHUB_OUTPUT
+          static_vnet_name=$(grep 'vnet_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "static_vnet_name=$static_vnet_name" | tee -a $GITHUB_OUTPUT
           
           # Extract GitHub details 
           echo "git_short_sha=$(git rev-parse --short HEAD)" | tee -a $GITHUB_OUTPUT
@@ -103,6 +105,7 @@ jobs:
       TF_VAR_acr_name: ${{ needs.process-image.outputs.acr_name }}
       TF_VAR_image_name: ${{ needs.process-image.outputs.acr_image }}
       TF_VAR_static_resource_group_name: ${{ needs.process-image.outputs.static_resource_group_name }}
+      TF_VAR_static_vnet_name: ${{ needs.process-image.outputs.static_vnet_name }}
       TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
     steps:
       - name: Checkout repo code

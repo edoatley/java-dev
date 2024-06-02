@@ -22,12 +22,31 @@ data "azurerm_container_registry" "this" {
   resource_group_name = var.static_resource_group_name
 }
 
+data "azurerm_subnet" "this" {
+  name                 = "snet-default"
+  virtual_network_name = var.static_vnet_name
+  resource_group_name  = var.static_resource_group_name
+}
+
+resource "azurerm_network_interface" "this" {
+  name                = module.naming.network_interface.name
+  resource_group_name = azurerm_resource_group.this.name
+  location            = azurerm_resource_group.this.location
+
+  ip_configuration {
+    name                          = "ipconfig1"
+    subnet_id                     = data.azurerm_subnet.this.id
+    private_ip_address_allocation = "Dynamic"
+  }
+}
+
 resource "azurerm_linux_virtual_machine" "this" {
   name                = module.naming.virtual_machine.name
   resource_group_name = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
   size                = var.vm_size
   admin_username      = var.vm_admin_username
+
   admin_ssh_key {
     username   = var.vm_admin_username
     public_key = var.vm_ssh_public_key
