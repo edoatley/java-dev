@@ -71,6 +71,6 @@ resource "azurerm_linux_virtual_machine" "this" {
     "branch"        = var.branch_reference
   }
 
-  user_data = file("${path.module}/scripts/user-data.sh")
+  user_data = filebase64("${path.module}/scripts/user-data.sh")
 
 }
