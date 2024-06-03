@@ -40,8 +40,12 @@ resource "azurerm_network_interface" "this" {
   }
 }
 
+locals {
+  safe_vm_name = replace(module.naming.virtual_machine.name, "/[^a-zA-Z0-9]/", "")
+}
+
 resource "azurerm_linux_virtual_machine" "this" {
-  name                = module.naming.virtual_machine.name
+  name                = local.safe_vm_name
   resource_group_name = azurerm_resource_group.this.name
   location            = azurerm_resource_group.this.location
   size                = var.vm_size
