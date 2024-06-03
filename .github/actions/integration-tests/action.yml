@@ -2,11 +2,11 @@ name: Local Docker Build
 description: Locally build and tags the docker image
 
 inputs:
-  image:
+  image-tag:
     description: 'What to tag image with'
     required: true
   registry:
-    description: 'Container registry to push the image to'
+    description: 'Image Registry'
     required: true
     default: 'ghcr.io'
   context:
@@ -41,6 +41,8 @@ inputs:
 runs:
   using: 'composite'
   steps:
+  - uses: actions/checkout@v4
+
   - name: Set up JDK
     uses: actions/setup-java@v4
     with:
@@ -74,17 +76,8 @@ runs:
       username: ${{ github.actor }}
       password: ${{ github.token }}
 
-  - name: Build image name
-    id: extract_image
-    shell: bash
-    run: |
-      branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
-      imagename="${{ inputs.registry }}/${{ inputs.image }}:$branch"
-      echo "name=$imagename"
-      echo "name=$imagename" >> $GITHUB_OUTPUT
-
   - name: Pull the image
-    run: docker pull ${{ steps.extract_image.outputs.name }}
+    run: docker pull ${{ inputs.image-tag }}
     shell: bash
 
   - name: Run App as a docker image and capture startup logs
@@ -98,31 +91,14 @@ runs:
         --mount type=bind,source=$(pwd)/${{inputs.key-store}},target=${{env.DOCKER_KEYSTORE_PATH}},readonly \
         --env SERVER_KEYSTORE=${{env.DOCKER_KEYSTORE_PATH}} \
         --env SERVER_KEYSTORE_PASSWORD=${{inputs.key-store-password}} \
-        --name restapi ${{ steps.extract_image.outputs.name }})
+        --name restapi ${{ inputs.image-tag }})
       sleep 20
       docker logs -t $containerid
 
     shell: bash
 
   - name: cURL the endpoint as a sense check
-    run: |
-      success_count=0
-      for i in {1..5}; do
-        curl -vvv -k \
-            -H "Host: ${{ inputs.hostname }}" \
-            -H "Content-Type: application/json" \
-            -d '{"username":"user","password":"password"}' \
-            "https://localhost:${{ steps.port.outputs.free_port }}/api/authentication" 
-        if [ $? -eq 0 ]; then
-          success_count=$((success_count+1))
-        fi
-        sleep 5
-      done
-      if [ $success_count -eq 0 ]; then
-        echo "Failed to connect to the server"
-        docker logs --tail 200 restapi
-        exit 1
-      fi
+    run: "success_count=0\nfor i in {1..5}; do\n  curl -vvv -k \\\n      -H \"Host: ${{ inputs.hostname }}\" \\\n      -H \"Content-Type: application/json\" \\\n      -d '{\"username\":\"user\",\"password\":\"password\"}' \\\n      \"https://localhost:${{ steps.port.outputs.free_port }}/api/authentication\" \n  if [ $? -eq 0 ]; then\n    success_count=$((success_count+1))\n  fi\n  sleep 5\ndone\nif [ $success_count -eq 0 ]; then\n  echo \"Failed to connect to the server\"\n  docker logs --tail 200 restapi\n  exit 1\nfi\n"
     shell: bash
 
   - name: Run integration test

@@ -1,9 +1,9 @@
-name: 'Java CI with Gradle'
-description: 'Sets up JDK, Gradle, and runs tests'
+name: 'Push the image to Github Container Registry'
+description: 'Builds and pushes a Docker image to the Github Container Registry'
 
 inputs:
   image-name:
-    description: 'Version of Gradle to setup'
+    description: 'Full name of the image'
     required: true
   docker-context:
     description: 'Directory to run the commands in'

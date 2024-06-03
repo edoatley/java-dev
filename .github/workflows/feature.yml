@@ -1,0 +1,125 @@
+name: Feature branch
+on:
+  workflow_dispatch:
+    inputs:
+      image-name:
+        type: string
+        description: 'The name of the GHCR image just built'
+        required: true
+      image-tag:
+        type: string
+        description: 'The tag of the GHCR image just built'
+        required: true
+      environment: 
+        type: string
+        description: 'The environment to deploy to'
+        required: true  
+
+  workflow_call:
+    inputs:
+      image-name:
+        type: string
+        description: 'The name of the GHCR image just built'
+        required: true
+      image-tag:
+        type: string
+        description: 'The tag of the GHCR image just built'
+        required: true
+      environment: 
+        type: string
+        description: 'The environment to deploy to'
+        required: true
+
+permissions:
+  id-token: write
+  contents: read
+
+## Push to ACR first so can deploy to Azure    
+jobs:
+  process-image:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    outputs:
+      acr_name: ${{ steps.details.outputs.acr_name }}
+      acr_image: ${{ steps.details.outputs.acr_image }}
+      git_short_sha: ${{ steps.details.outputs.git_short_sha }}
+      feature_branch_name: ${{ steps.details.outputs.feature_branch_name }}
+      static_resource_group_name: ${{ steps.details.outputs.static_resource_group_name }}
+      static_vnet_name: ${{ steps.details.outputs.static_vnet_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: '0'
+          
+      - name: Extract details
+        id: details
+        working-directory: iac/azure/static/instance
+        shell: bash
+        run: |
+          # read the acr_name, static_resource_group_name & static_vnet_name from main.tfvars
+          acr_name=$(grep 'acr_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "acr_name=$acr_name" | tee -a $GITHUB_OUTPUT
+          static_resource_group_name=$(grep 'resource_group_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "static_resource_group_name=$static_resource_group_name" | tee -a $GITHUB_OUTPUT
+          static_vnet_name=$(grep 'vnet_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "static_vnet_name=$static_vnet_name" | tee -a $GITHUB_OUTPUT
+          
+          # Extract GitHub details 
+          echo "git_short_sha=$(git rev-parse --short HEAD)" | tee -a $GITHUB_OUTPUT
+          feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f4)
+          echo "feature_branch_name=$feature_branch_name" | tee -a $GITHUB_OUTPUT
+
+          # replace ghcr.io with ${acr_name}.azurecr.io
+          acr_image=$(echo "${{ inputs.image-tag }}" | sed "s/ghcr.io/${acr_name}.azurecr.io/g")
+          echo "acr_image=${acr_image}" | tee -a $GITHUB_OUTPUT
+
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}          
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    
+      - name: Push to Azure Container Registry
+        id: push-to-acr
+        working-directory: iac/azure/static/instance
+        run: |
+          az acr login --name "${{ steps.details.outputs.acr_name}}"
+          
+          # pull the GHCR image and push to ACR
+          docker pull ${{ inputs.image-tag }}
+          docker tag ${{ inputs.image-tag }} "${{ steps.details.outputs.acr_image}}"
+          docker push "${{ steps.details.outputs.acr_image}}"
+
+  feature-infra:
+    name: Provision Feature Azure infrastructure
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.environment }}
+    needs: process-image
+    env:
+      ARM_USE_OIDC: true
+      ARM_USE_AZUREAD: true
+      ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      ARM_CLIENT_ID: ${{ secrets.AZURE_TERRAFORM_CLIENT_ID }}   
+      TF_VAR_branch_reference: ${{ needs.process-image.outputs.feature_branch_name }}
+      TF_VAR_git_short_sha: ${{ github.sha }}
+      TF_VAR_acr_name: ${{ needs.process-image.outputs.acr_name }}
+      TF_VAR_image_name: ${{ needs.process-image.outputs.acr_image }}
+      TF_VAR_static_resource_group_name: ${{ needs.process-image.outputs.static_resource_group_name }}
+      TF_VAR_static_vnet_name: ${{ needs.process-image.outputs.static_vnet_name }}
+      TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
+    steps:
+      - name: Checkout repo code
+        uses: actions/checkout@v4
+
+      - name: Terraform Apply
+        uses: ./.github/actions/azure-terraform
+        with:
+          instance: feaure
+          tfAction: Apply
+          workingDir: iac/azure/feature
+          tfBackend: feature/${{ needs.process-image.outputs.feature_branch_name }}
+          tfParams: ''
+          backendResourceGroup: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC_RG }} 
+          backendStorageAccount: ${{ vars.AZURE_TERRAFORM_STORAGE_ACC }}   
+          backendContainer: "${{ github.repository_owner }}-${GITHUB_REPOSITORY#*/}"  
