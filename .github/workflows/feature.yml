@@ -45,6 +45,7 @@ jobs:
       git_short_sha: ${{ steps.details.outputs.git_short_sha }}
       feature_branch_name: ${{ steps.details.outputs.feature_branch_name }}
       static_resource_group_name: ${{ steps.details.outputs.static_resource_group_name }}
+      static_vnet_name: ${{ steps.details.outputs.static_vnet_name }}
     steps:
       - uses: actions/checkout@v4
         with:
