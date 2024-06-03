@@ -22,7 +22,9 @@ jobs:
           echo "acr_name=$acr_name" | tee -a $GITHUB_OUTPUT
           static_resource_group_name=$(grep 'resource_group_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
           echo "static_resource_group_name=$static_resource_group_name" | tee -a $GITHUB_OUTPUT
-          
+          static_vnet_name=$(grep 'vnet_name' main.tfvars | cut -d'=' -f2 | tr -d '[:space:]' | tr -d '"')
+          echo "static_vnet_name=$static_vnet_name" | tee -a $GITHUB_OUTPUT
+
           # Extract GitHub details 
           echo "git_short_sha=$(git rev-parse --short HEAD)" | tee -a $GITHUB_OUTPUT
           feature_branch_name=$(echo "${{ github.ref }}" | cut -d'/' -f4)
@@ -41,6 +43,8 @@ jobs:
             TF_VAR_acr_name: ${{ steps.details.outputs.acr_name }}
             TF_VAR_image_name: ${{ steps.details.outputs.acr_image }}
             TF_VAR_static_resource_group_name: ${{ steps.details.outputs.static_resource_group_name }}
+            TF_VAR_static_vnet_name: ${{ steps.details.outputs.static_vnet_name }}
+            TF_VAR_vm_ssh_public_key: ${{ secrets.VM_SSH_PUBLIC_KEY }}
         with:
           instance: feaure
           tfAction: Destroy
