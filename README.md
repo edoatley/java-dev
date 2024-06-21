@@ -682,23 +682,22 @@ The idea here is that we add the capability to respond to a `feature/*` branch b
 
 As a first attempt I built the following flow:
 
-| Workflow | Job | Description |
-| --- | --- | --- | 
-| Pipeline | | Triggered by push event |
-|  | java-build | Checks out the code, builds and tests the Java application using the `java-ci-build` action (which uses gradle), and uploads the `restapi-all.jar` file as an artifact for use in later jobs. |
-|  | docker-build | Checks out the code, downloads the `restapi-all.jar` artifact, and builds and pushes a Docker image to GitHub Container Registry (GHCR) using the `ghcr-docker-image` action. The image tag is output for use in later jobs. |
-|  | integration-tests | Checks out the code and runs integration tests using the `integration-tests` action. The tests run the docker image and check the application responds as expected |
-|  | container-image-scan | Scans the Docker image for vulnerabilities using the `container-image-scan` action. |
-|  | software-composition-analysis | Performs software composition analysis on the java application. |
-|  | release-main | This job triggers the Main workflow when the push was to the **main** branch |
-| | feature | This job  triggers the Feature workflow when the push event occurs on a branch whose name starts with `feature/`. |
-| Main | | |
-| | tag-release | Creates a new tag for the release and pushes the tag to the repository. |
-| | push-to-acr | Pulls the GHCR docker image, obtains the Azure container registry (ACR) name and pushes the image using the new release tag as the version |
-| Feature | | |
-| | process-image | Gets details of the ACR and generates a suitable image name before pulling from GHCR and pushing to ACR |
-| | feature-infra | Deploy infrastructure for this feature branch to Azure and deploy the image there |
-
+| Workflow | Job                           | Description                                                                                                                                                                                                                  |
+| -------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pipeline |                               | Triggered by push event                                                                                                                                                                                                      |
+|          | java-build                    | Checks out the code, builds and tests the Java application using the `java-ci-build` action (which uses gradle), and uploads the `restapi-all.jar` file as an artifact for use in later jobs.                                |
+|          | docker-build                  | Checks out the code, downloads the `restapi-all.jar` artifact, and builds and pushes a Docker image to GitHub Container Registry (GHCR) using the `ghcr-docker-image` action. The image tag is output for use in later jobs. |
+|          | integration-tests             | Checks out the code and runs integration tests using the `integration-tests` action. The tests run the docker image and check the application responds as expected                                                           |
+|          | container-image-scan          | Scans the Docker image for vulnerabilities using the `container-image-scan` action.                                                                                                                                          |
+|          | software-composition-analysis | Performs software composition analysis on the java application.                                                                                                                                                              |
+|          | release-main                  | This job triggers the Main workflow when the push was to the **main** branch                                                                                                                                                 |
+|          | feature                       | This job  triggers the Feature workflow when the push event occurs on a branch whose name starts with `feature/`.                                                                                                            |
+| Main     |                               |                                                                                                                                                                                                                              |
+|          | tag-release                   | Creates a new tag for the release and pushes the tag to the repository.                                                                                                                                                      |
+|          | push-to-acr                   | Pulls the GHCR docker image, obtains the Azure container registry (ACR) name and pushes the image using the new release tag as the version                                                                                   |
+| Feature  |                               |                                                                                                                                                                                                                              |
+|          | process-image                 | Gets details of the ACR and generates a suitable image name before pulling from GHCR and pushing to ACR                                                                                                                      |
+|          | feature-infra                 | Deploy infrastructure for this feature branch to Azure and deploy the image there                                                                                                                                            |
 
 ### Install VM with docker and run image
 
