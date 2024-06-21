@@ -58,4 +58,4 @@ STORAGE_ACCOUNT_ID=$(az storage account show --name "$STORAGE_ACCOUNT" --resourc
 az role assignment create \
     --role "Storage Blob Data Contributor" \
     --assignee "$PRINCIPAL_ID" \
-    --scope "${STORAGE_ACCOUNT_ID}" 
+    --scope "${STORAGE_ACCOUNT_ID}"

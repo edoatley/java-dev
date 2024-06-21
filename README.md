@@ -19,6 +19,13 @@ Investigating neat ways to do java cloud native dev
     - [Authentication setup (Github)](#authentication-setup-github)
     - [Authentication setup (Terraform)](#authentication-setup-terraform)
     - [Deploy resources](#deploy-resources)
+  - [Feature branches](#feature-branches)
+    - [Install VM with docker and run image](#install-vm-with-docker-and-run-image)
+      - [Step 1 - VM docker install](#step-1---vm-docker-install)
+      - [Step 2 - VM public IP](#step-2---vm-public-ip)
+      - [Step 3 - NSG](#step-3---nsg)
+      - [Step 4 - Shutdown schedule](#step-4---shutdown-schedule)
+      - [Step 5 - Integration tests](#step-5---integration-tests)
 
 ## Plan
 
@@ -691,3 +698,29 @@ As a first attempt I built the following flow:
 | Feature | | |
 | | process-image | Gets details of the ACR and generates a suitable image name before pulling from GHCR and pushing to ACR |
 | | feature-infra | Deploy infrastructure for this feature branch to Azure and deploy the image there |
+
+
+### Install VM with docker and run image
+
+TODO: Before anything else fix https://github.com/edoatley/java-dev/actions/runs/9352704147
+
+In the previous section terraform is used to deploy a VM inside a VNET and push the image to an ACR, now we must install docker on the virtual machine 
+and run the application. We then need to expose the VM on a public IP allowing us to run the integration tests against the VM docker container.
+
+#### Step 1 - VM docker install
+
+Use a script to install docker on the VM
+
+#### Step 2 - VM public IP
+
+expose VM on a public IP address
+
+#### Step 3 - NSG 
+
+only allow port 443 and SSH from my laptop 
+
+#### Step 4 - Shutdown schedule
+
+#### Step 5 - Integration tests
+
+Run the integration tests against the VM docker container (start VM if stopped)
